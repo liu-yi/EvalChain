@@ -1,18 +1,27 @@
 <template>
-    <el-row>
-        <el-col :span="8" v-for="(o, index) in 2" :key="o" :offset="index > 0 ? 2 : 0">
-            <el-card :body-style="{ padding: '0px' }">
-                <img class="image" :src="hamburger">
+    <el-row style="padding-right:20px" >
+        <el-col :span="5" v-for="(o) in 6" :offset="1" :key="o" class="card">
+            <el-card shadow="hover">
+                <img class="image" :src="hamburger" >
                 <div style="padding: 14px;">
-                    <span>好吃的汉堡</span>
+                    <el-row>
+                      <el-col :span="12"><span>离散数学</span></el-col>
+                      <el-col :span="9" :offset="3" ><span style="font-size: 13px;color: #666;">已参与：人</span></el-col>
+                    </el-row>
+                    
+                    
                     <div class="bottom clearfix">
-                        <time class="time">{{ currentDate }}</time>
-                        <el-button type="text" class="button">操作按钮</el-button>
+                        <time class="time">结束时间：{{ currentDate }}</time>
+                        <el-button type="primary" style="margin-top:6px;width:100%">开始评教</el-button>
+                        <br>
+                        <el-button style="margin-top:6px;width:100%">查看结果</el-button>
                     </div>
                 </div>
             </el-card>
         </el-col>
+        
     </el-row>
+    
 </template>
 
 <script>
@@ -21,7 +30,8 @@ export default {
   name: 'ongoing',
   data() {
     return {
-      hamburger
+      hamburger,
+      currentDate: new Date().toLocaleTimeString()
     }
   }
 
@@ -31,9 +41,16 @@ export default {
 
 
 <style>
+.card {
+  margin-top: 40px;
+    
+}
 .time {
   font-size: 13px;
   color: #999;
+  padding-bottom: 8px;
+  /* padding-top: 8px; */
+  display: block;
 }
 
 .bottom {
@@ -48,26 +65,10 @@ export default {
 
 .image {
   width: 100%;
+  max-width:400px;
   display: block;
 }
 
-.clearfix:before,
-.clearfix:after {
-  display: table;
-  content: "";
-}
 
-.clearfix:after {
-  clear: both;
-}
 </style>
 
-<script>
-export default {
-  data() {
-    return {
-      currentDate: new Date()
-    }
-  }
-}
-</script>
