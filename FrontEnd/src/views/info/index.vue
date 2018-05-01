@@ -46,46 +46,46 @@
 <script>
 export default {
   data() {
-    var validateEmail = (rule, value, callback) => {};
+    var validateEmail = (rule, value, callback) => {}
     var validateCheckPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword) {
-        if (value === "") {
-          callback(new Error("Please input the password again!"));
+        if (value === '') {
+          callback(new Error('Please input the password again!'))
         } else if (value !== this.infoForm.newPassword) {
           callback(
-            new Error("The password is different from the new password!")
-          );
+            new Error('The password is different from the new password!')
+          )
         } else {
-          callback();
+          callback()
         }
       }
-    };
+    }
     var validateCurrentPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword || this.infoForm.changePublicKey) {
-        if (value === "") {
-          callback(new Error("Please input the current password!"));
+        if (value === '') {
+          callback(new Error('Please input the current password!'))
         }
       }
-    };
+    }
     var validateNewPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword) {
-        if (value === "") {
-          callback(new Error("Please input the current password!"));
+        if (value === '') {
+          callback(new Error('Please input the current password!'))
         }
       }
-    };
+    }
     return {
       infoForm: {
-        name: "刘逸",
-        stuid: "11410601",
-        email: "11410601@mail.sustc.edu.cn",
+        name: '刘逸',
+        stuid: '11410601',
+        email: '11410601@mail.sustc.edu.cn',
         changeEmail: false,
         changePassword: false,
         changePublicKey: false,
-        currentPassword: "",
-        newPassword: "",
-        checkPassword: "",
-        publicKey: ""
+        currentPassword: '',
+        newPassword: '',
+        checkPassword: '',
+        publicKey: ''
       },
       infoRules: {
         name: [],
@@ -93,50 +93,50 @@ export default {
         email: [
           {
             validator: validateEmail,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         currentPassword: [
           {
             validator: validateCurrentPassword,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         newPassword: [
           {
             validator: validateNewPassword,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         checkPassword: [
           {
             validator: validateCheckPassword,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         publicKey: []
       },
-      oldEmail: "11410601@mail.sustc.edu.cn"
-    };
+      oldEmail: '11410601@mail.sustc.edu.cn'
+    }
   },
   watch: {
-    "infoForm.email": function(newmail, oldmail) {
+    'infoForm.email': function(newmail, oldmail) {
       if (this.oldEmail === newmail) {
-        this.infoForm.changeEmail = false;
+        this.infoForm.changeEmail = false
       } else {
-        this.infoForm.changeEmail = true;
+        this.infoForm.changeEmail = true
       }
     }
   },
   methods: {
     onSubmit() {
-      this.$message("submit!");
+      this.$message('submit!')
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields();
+      this.$refs[formName].resetFields()
     }
   }
-};
+}
 </script>
 
 <style scoped>

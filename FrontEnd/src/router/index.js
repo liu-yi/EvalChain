@@ -36,8 +36,32 @@ export const constantRouterMap = [
     children: [{
       path: 'index',
       name: 'Home',
-      meta: { title: 'Home', icon:'user' },
+      meta: { title: 'Home', icon: 'user' },
       component: () => import('@/views/home/index')
+    }]
+  },
+
+  {
+    path: '/setup',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: 'index',
+      name: 'Setup',
+      meta: { title: 'Setup', icon: 'user' },
+      component: () => import('@/views/setup/index')
+    }]
+  },
+
+  {
+    path: '/evaluating',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: 'index',
+      name: 'Evaluating',
+      meta: { title: 'Evaluating', icon: 'user' },
+      component: () => import('@/views/evaluating/index')
     }]
   },
 
@@ -47,7 +71,7 @@ export const constantRouterMap = [
     children: [
       {
         path: 'index',
-        name: 'Form',
+        name: 'Information',
         component: () => import('@/views/info/index'),
         meta: { title: 'Information', icon: 'user' }
       }
@@ -75,7 +99,7 @@ export const constantRouterMap = [
       }
     ]
   },
-  
+
   {
     path: '/help',
     component: Layout,

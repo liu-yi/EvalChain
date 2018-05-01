@@ -22,11 +22,8 @@ contract Evaluating is owned{
                     SETUP DATA
     /****************************************/
     uint public constant maxNumberEvaluatorsPerRing = 800;
-    // uint public numEvaluatorPerRing;
-
     uint public evaluatingStartTime;
     uint public evaluatingEndTime;
-
     uint public minimumPhaseTime = 10;
 
     /****************************************
@@ -36,13 +33,9 @@ contract Evaluating is owned{
     /****************************************
                 REGISTRATION DATA
     /****************************************/
-    uint public currentRingIdx; 
-    mapping(uint => uint256[]) public ring;
-
+    // uint256[] public ring;
     uint256[2][] public evaluators;
-    mapping(uint256 => uint) public hashRingToIdx;
     mapping(bytes32 => bool) public registeredKeys;
-    mapping(bytes32 => uint) public hashKeyToRingIdx;
     /****************************************
              END REGISTRATION DATA
     /****************************************/
@@ -51,8 +44,8 @@ contract Evaluating is owned{
     /****************************************
                     EVAL DATA
     /****************************************/
-    mapping(bytes32 => uint) public registeredEvalLink;
-    bytes32[] public evalChoices;
+    mapping(bytes32 => bool) public registeredEvalLink;
+    uint[] public evalChoices;
     string[] public evalComments;
     /****************************************
                   END VOTE DATA
@@ -60,7 +53,6 @@ contract Evaluating is owned{
 
     function Evaluating() public {
         state = State.SETUP;
-        currentRingIdx = 1;
     }
 
     // @dev Sets a contract to debug mode so election times can be ignored.
@@ -70,16 +62,15 @@ contract Evaluating is owned{
     }
 
     function finishSetUp(
-        uint _numEvaluatorPerRing,
         uint256[2][] _publicKeys,
         uint _evaluatingStartTime,
         uint _evaluatingEndTime) public inState(State.SETUP) onlyOwner() returns (bool) {
 
-        if(_numEvaluatorPerRing > maxNumberEvaluatorsPerRing) {
+        if(_publicKeys.length > maxNumberEvaluatorsPerRing) {
             return false;
         }
 
-        if(block.timestamp > _evaluatingStartTime) {
+        if(block.timestamp + minimumPhaseTime > _evaluatingEndTime) {
             return false;
         }
 
@@ -93,13 +84,6 @@ contract Evaluating is owned{
             }
         }
 
-        if(ring[currentRingIdx - 1].length / 2 < numEvaluatorPerRing) {
-            uint256 closeringHash = RingSignature.hashToInt(ring[currentRingIdx - 1]);
-            hashRingToIdx[closeringHash] = currentRingIdx;
-            currentRingIdx += 1;
-        }
-
-        numEvaluatorPerRing = _numEvaluatorPerRing;
         evaluatingStartTime = _evaluatingStartTime;
         evaluatingEndTime = _evaluatingEndTime;
 
@@ -118,49 +102,39 @@ contract Evaluating is owned{
             return false;
         }
 
-        ring[currentRingIdx - 1].push(publicKey[0]);
-        ring[currentRingIdx - 1].push(publicKey[1]);
         evaluators.push([publicKey[0], publicKey[1]]);
         registeredKeys[keccak256(publicKey)] = true;
-        hashKeyToRingIdx[keccak256(publicKey)] = currentRingIdx;
-
-        if(ring[currentRingIdx - 1].length / 2 == numEvaluatorPerRing) {
-            uint256 closeringHash = RingSignature.hashToInt(ring[currentRingIdx - 1]);
-            hashRingToIdx[closeringHash] = currentRingIdx;
-            currentRingIdx += 1;
-        }
 
         return true;
     }
 
 
     function Evaluate(
-        bytes32 evalChoice,
+        uint256 evalChoice,
         string evalComment,
-        uint256[] pubKeys,
+        uint256[2][] pubKeys,
         uint256 c_0,
-        uint256[] signature,
+        uint256[] s,
         uint256[2] link) public inState(State.EVALUATING) returns (bool){ 
 
         if(block.timestamp > evaluatingEndTime) {
-            state = State.FINISHED;
             return false;
         }
 
-        if(registeredEvalLink[keccak256(link)] != 0) {
-            return true;
-        }
-
-        uint256 ringHash = RingSignature.hashToInt(pubKeys);
-        
-        if( hashRingToIdx[ringHash] == 0) {
+        if(registeredEvalLink[keccak256(link)]) {
             return false;
+        } 
+
+        for(uint i = 0; i < pubKeys.length; i++){
+            if(!registeredKeys[keccak256(pubKeys[i])]) {
+                return false;
+            }
         }
 
-        if(RingSignature.verifyRingSignature(uint256(keccak256(evalChoice)^keccak256(evalComment)), pubKeys, c_0, signature, link)) {       
+        if(RingSignature.verifyRingSignature(uint256(keccak256(evalChoice))^uint256(keccak256(evalComment)), pubKeys, c_0, s, link)) {       
             evalChoices.push(evalChoice);
             evalComments.push(evalComment);
-            registeredEvalLink[keccak256(link)] = evalChoices.length;//bool?
+            registeredEvalLink[keccak256(link)] = true;
             return true;
         }
 
@@ -180,27 +154,16 @@ contract Evaluating is owned{
         
     }
 
-    function getRingIdx(uint256[2] pubKey) public constant returns (uint) {
-        return hashKeyToRingIdx[keccak256(pubKey)];
-    }
-
-
-    function getRingSize(uint ringIdx) public constant returns (uint) {
-        return ring[ringIdx].length;
-    }
-    
-
     function getNumberEvaluations() public constant returns (uint) {
         return evalChoices.length;
     }
-
 
     function getNumRegisterEvaluators() public constant returns (uint) {
         return evaluators.length;
     }
 
     function queryLink(uint256[2] link) public constant returns (bool) {
-        if(registeredEvalLink[keccak256(link)] != 0) {
+        if(registeredEvalLink[keccak256(link)]) {
             return true;
         }else{
             return false;
