@@ -1,49 +1,51 @@
 <template>
   <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;">
-    <el-card>
-      <el-row>
-        <el-col :span="24">
-          <h1 style="padding: 18px 20px; border-bottom: 1px solid #ebeef5; text-align:center">{{evalForm.name}}</h1>
-        </el-col>
-        <el-col :span="24">
-          <div style="padding-left: 20px; padding-bottom: 15px; text-align: center;">Lecture: {{evalForm.prof}}</div>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24" v-for="(item, index) in evalForm.items" :key="item">
-          <el-card style="margin: 20px; margin-top:20px; padding: 10px;">
-            <div slot="header" class="clearfix">
-              <span>{{index+1 +'. ' + item.question}}</span>
-            </div>
-            <div style="padding-left: 20px">
-              <el-rate v-model="item.score" show-text :texts="['Very Bad', 'Bad', 'Fair', 'Good', 'Very Good']">
-              </el-rate>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="24">
-          <el-card style="margin: 20px; margin-top:20px; padding: 10px;">
-            <div slot="header" class="clearfix">
-              <span> 本课程哪些方面最吸引你？ 本课程哪些方面最需要改进？ 你对本课程还有其它愿意反馈的学习感受和需求吗？</span>
-            </div>
-            <div>
-              <el-input type="textarea" v-model="evalForm.comment" placeholder="" :rows="4"></el-input>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24" style="margin: 20px; margin-top:30px;">
-          <el-button type="primary" @click="onSubmit">Submit Directly</el-button>
-          <el-button type="success">Generate Submit File</el-button>
-        </el-col>
-      </el-row>
-    </el-card>
-
+    <el-row>
+      <el-col :span="24">
+        <h1 style="padding: 18px 20px; border-bottom: 1px solid #ebeef5; text-align:center">{{evalForm.name}}</h1>
+      </el-col>
+      <el-col :span="24">
+        <div style="padding-left: 20px; padding-bottom: 15px; text-align: center;">Lecture: {{evalForm.prof}}</div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24" v-for="(item, index) in evalForm.items" :key="index">
+        <el-card style="margin: 20px; margin-top:20px; padding: 10px;">
+          <div slot="header" class="clearfix">
+            <span>{{index + 1 +'. ' + item.question}}</span>
+          </div>
+          <div v-if="item.type === 'score'" style="padding-left: 20px">
+            <el-rate v-model="item.content" show-text :texts="['Very Bad', 'Bad', 'Fair', 'Good', 'Very Good']">
+            </el-rate>
+          </div>
+          <div v-else-if="item.type === 'comment'">
+            <el-input :autosize="{ minRows: 4}" type="textarea" v-model="item.content" placeholder="" :maxlength=item.lengthLimit></el-input>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24" style="margin: 20px; margin-top:30px;">
+        <el-button :disabled="isCompleted" type="primary" @click="onEval">Submit Directly</el-button>
+        <el-button type="success">Generate Submit File</el-button>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
+import { generateSignAndPublish } from '@/operations/eval'
+import EVALUATION from '@/operations/info'
+import Web3 from 'web3'
+
+var web3
+
+if (typeof web3 !== 'undefined') {
+  web3 = new Web3(web3.currentProvider)
+} else {
+  web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'))
+}
+
 export default {
   data() {
     return {
@@ -54,53 +56,130 @@ export default {
         items: [
           {
             question: '你对这门课程教学的总体感受是',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '备课认真充分,熟悉授课内容',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '课堂讲解清晰有条理、循序渐进',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '讲授的知识内容丰富, 能反映知识前沿',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '教学方法多样灵活，激发学生兴趣',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '能够根据学生的理解水平有效调节授课进度',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '能够适时引导讨论问题, 形成课堂互动, 激发学生思考',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '能够注意给予学生学习方法的指导',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '能够及时批改、发放作业, 给予建设性的评价',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
           },
           {
             question: '我从这门课程里收获非常大',
-            score: null
+            type: 'score',
+            required: true,
+            content: 5
+          },
+          {
+            question:
+              '本课程哪些方面最吸引你？ 本课程哪些方面最需要改进？ 你对本课程还有其它愿意反馈的学习感受和需求吗？',
+            type: 'comment',
+            lengthLimit: 200,
+            required: true,
+            content: 'good'
           }
         ],
-        comment: null
-      }
+        M: {}
+      },
+      evaluation: null,
+      contractAddress: '0x26548f4Fcca62328910C90BEC44DF425B68cb80B',
+      signingKey:
+        '110078236347245708972018669511939349091653777570544332263980702297721204951700'
     }
   },
   watch: {},
+  mounted() {
+    this.evaluation = new EVALUATION(this.contractAddress)
+  },
+  computed: {
+    isCompleted: function() {
+      let flag = false
+      for (const item in this.evalForm.items) {
+        if (
+          this.evalForm.items[item].required &&
+          this.evalForm.items[item].content === null
+        ) {
+          flag = true
+        }
+      }
+      return flag
+    }
+  },
   methods: {
-    onSubmit() {
-      this.$message('submit!')
+    onEval() {
+      let evalChoice = ''
+      for (const item in this.evalForm.items) {
+        if (this.evalForm.items[item].type === 'score') {
+          if (this.evalForm.items[item].content === null) {
+            evalChoice += '6'
+          } else {
+            evalChoice += this.evalForm.items[item].content
+          }
+        } else if (this.evalForm.items[item].type === 'comment') {
+          this.evalForm.M.evalComment = this.evalForm.items[item].content
+        }
+      }
+      this.evalForm.M.evalChoice = evalChoice
+
+      // var M = this.evalForm.M
+      // var MDigest = BigInteger.fromHex(
+      //   web3Utils.soliditySha3(new BN(M.evalChoice.toString())).substring(2)
+      // ).xor(
+      //   BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
+      // );
+      // console.log(MDigest.toString())
+      // this.evaluation.contract.methods
+      //   .keccakM(new BN(M.evalChoice.toString()),M.evalComment)
+      //   .call()
+      //   .then(res => {
+      //     console.log(res);
+      //   });
+      console.log('haha')
+      generateSignAndPublish(this.evaluation, this.evalForm.M, this.signingKey)
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
@@ -112,4 +191,13 @@ export default {
 <style scoped>
 
 </style>
-
+Class 1401:Array[5]
+0:Object
+id:11410601
+key:"(73722225611106107334386803213085772468442793140372179927718611487427827475342,113765103446077543888259368378000292155978496738240094237136841520542316255235)"
+label:"学生010"
+sk:"110078236347245708972018669511939349091653777570544332263980702297721204951700"
+1:Object
+2:Object
+3:Object
+4:Objec

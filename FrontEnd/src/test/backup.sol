@@ -1,5 +1,5 @@
-pragma solidity ^0.4.10;
-// pragma experimental ABIEncoderV2;
+// pragma solidity ^0.4.10;
+pragma experimental ABIEncoderV2;
 
 import "./SECP256k1.sol";
 import "./RingSignature.sol";
@@ -35,10 +35,10 @@ contract Evaluating is owned{
                 REGISTRATION DATA
     /****************************************/
     // uint256[] public ring;
-    uint256[] public evaluators;
+    uint256[2][] public evaluators;
     mapping(bytes32 => bool) public registeredKeys;
 
-    function getEvaluators() public returns (uint256[]) {
+    function getEvaluators() public returns (uint[2][]) {
         return evaluators;
     }
 
@@ -116,8 +116,7 @@ contract Evaluating is owned{
             return false;
         }
 
-        evaluators.push(publicKey[0]);
-        evaluators.push(publicKey[1]);
+        evaluators.push([publicKey[0], publicKey[1]]);
         registeredKeys[keccak256(publicKey)] = true;
 
         return true;
@@ -127,7 +126,7 @@ contract Evaluating is owned{
     function Evaluate(
         uint256 evalChoice,
         string evalComment,
-        uint256[] pubKeys,
+        uint256[2][] pubKeys,
         uint256 c_0,
         uint256[] s,
         uint256[2] link) public inState(State.EVALUATING) returns (bool){ 
@@ -140,8 +139,8 @@ contract Evaluating is owned{
             return false;
         } 
 
-        for(uint i = 0; i < pubKeys.length/2; i++){
-            if(!registeredKeys[keccak256([pubKeys[2*i], pubKeys[2*i + 1] ])]) {
+        for(uint i = 0; i < pubKeys.length; i++){
+            if(!registeredKeys[keccak256(pubKeys[i])]) {
                 return false;
             }
         }
@@ -194,10 +193,6 @@ contract Evaluating is owned{
 
     function H1(uint256[2][] y, uint256[2] link, uint256 message, uint256[2] z_1, uint256[2] z_2) public constant returns(uint256) {
         return uint256(keccak256(y, link, message, z_1, z_2));
-    }
-
-    function hashArray(uint256[] y) public returns(uint256){
-        return uint256(keccak256(y));
     }
 
 }

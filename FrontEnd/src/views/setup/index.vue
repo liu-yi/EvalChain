@@ -38,7 +38,7 @@
       </div>
       <el-form-item>
         <div>
-          <el-button :disabled="submitDisabled" style="width:95%" type="primary" @click="onPublish">Publish</el-button>
+          <el-button :disabled="isCompleted" style="width:95%" type="primary" @click="onPublish">Publish</el-button>
         </div>
       </el-form-item>
 
@@ -70,8 +70,11 @@ export default {
         }
         data["Class 14" + className] = [];
         for (let j = 0; j < 5; j++) {
+          var keypair = generateKeyPair()
           data["Class 14" + className][j] = {
-            key: generateKeyPair().pk.toString(),
+            key: keypair.pk.toString(),
+            //just for test
+            sk: keypair.sk.toString(),
             id: 11410601,
             label: "学生" + className + j
           };
@@ -118,7 +121,7 @@ export default {
     };
   },
   computed: {
-    submitDisabled: function() {
+    isCompleted: function() {
       let flag = false;
       for (let item in this.setupForm) {
         if (this.setupForm[item].length === 0) {

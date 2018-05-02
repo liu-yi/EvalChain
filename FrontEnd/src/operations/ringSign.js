@@ -207,6 +207,7 @@ function H1(y, link, message, z_1, z_2) {
   temp_list = temp_list.concat(
     [(new BN(z_2.toString().split(',')[0].substring(1)).toString(16, 64)) + (new BN(z_2.toString().split(',')[1].slice(0, -1)).toString(16, 64))]
   )
+
   return BigInteger.fromHex(
     web3Utils.keccak256(
       '0x' + temp_list.join('')
@@ -217,7 +218,7 @@ function H1(y, link, message, z_1, z_2) {
 function hashToInt(y) {
   var temp_y = y.map(
     (item) => {
-      return (new BN(item.toString().split(',')[0].substring(1)).toString(16, 64)) + (new BN(item.toString().split(',')[1].substring(1)).toString(16, 64))
+      return (new BN(item.toString().split(',')[0].substring(1)).toString(16, 64)) + (new BN(item.toString().split(',')[1].slice(0, -1)).toString(16, 64))
     }
   )
   return BigInteger.fromHex(web3Utils.keccak256('0x' + temp_y.join('')).substring(2))
@@ -280,7 +281,7 @@ function randrange(range) {
   return BigInteger.fromHex(r.toString('hex'))
 }
 
-function verifyRingSignature(message, y, c_0, s, link) {
+export function verifyRingSignature(message, y, c_0, s, link) {
   var G = ecparams.G
   // n i s not a big integer!
   var n = y.length
@@ -328,10 +329,16 @@ function shuffle(_list) {
 */
 export function ringSign(signingKey, M, _y) {
   var y = shuffle(_y)
-  var signingkeyHash = web3Utils.keccak256(ecparams.G.multiply(signingKey).toString())
+  signingKey = BigInteger(signingKey)
+  y = y.map(
+    (item) => {
+      return new ecurve.Point(ecparams, item[0], item[1], BigInteger('1'))
+    }
+  )
+  var signingkeyString = ecparams.G.multiply(signingKey).toString()
   var key_idx
   for (let i = 0; i < y.length; i++) {
-    if (web3Utils.keccak256(y[i].toString()) === (signingkeyHash)) {
+    if (y[i].toString() === (signingkeyString)) {
       key_idx = i
     }
   }
@@ -341,7 +348,15 @@ export function ringSign(signingKey, M, _y) {
   )
 
   var signature = ringSignature(signingKey, key_idx, MDigest, y)
-
+  // console.log(signingKey.toString())
+  // console.log(signingkeyString)
+  // console.log(key_idx)
+  // console.log(MDigest.toString())
+  // console.log(y.toString())
+  // console.log(signature.c_0.toString())
+  // console.log(signature.s.toString())
+  // console.log(signature.link.toString())
+  console.log(verifyRingSignature(MDigest, y, signature.c_0, signature.s, signature.link))
   return [signature, y]
 }
 

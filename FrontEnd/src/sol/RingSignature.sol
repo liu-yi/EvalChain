@@ -13,7 +13,7 @@ library RingSignature {
 
     // All the fancy modular stuff was re-written from a python library
     // https://github.com/warner/python-ecdsa/blob/master/src/ecdsa/numbertheory.py
-    function jacobi(uint256 _a, uint256 _n) internal constant returns(int256) {
+    function jacobi(uint256 _a, uint256 _n) internal constant returns (int256) {
         uint256 a = _a;
         uint256 n = _n;
         a = a % n;
@@ -198,17 +198,17 @@ library RingSignature {
         return Q;
     }
 
-    function H2(uint256[2][] y) internal constant returns(uint256[2] memory Q) {
+    function H2(uint256[] y) internal constant returns(uint256[2] memory Q) {
         uint256[2] memory T = mapToCurve(hashToInt(y));
         Q[0] = T[0];
         Q[1] = T[1];
     }
 
-    function H1(uint256[2][] y, uint256[2] link, uint256 message, uint256[2] z_1, uint256[2] z_2) internal constant returns(uint256) {
+    function H1(uint256[] y, uint256[2] link, uint256 message, uint256[2] z_1, uint256[2] z_2) internal constant returns(uint256) {
         return uint256(keccak256(y, link, message, z_1, z_2));
     }
 
-    function hashToInt(uint256[2][] y) internal constant returns(uint256){
+    function hashToInt(uint256[] y) internal constant returns(uint256){
         return uint256(keccak256(y));
     }
 
@@ -221,26 +221,27 @@ library RingSignature {
         return Q;
     }
 
-    function verifyRingSignature(uint256 message, uint256[2][] y, uint256 c_0, uint256[] s, uint256[2] link) internal constant returns(bool) {
+
+    function verifyRingSignature(uint256 message, uint256[] y, uint256 c_0, uint256[] s, uint256[2] link) internal constant returns(bool) {
         uint[2] memory G;
         G[0] = Gx;
         G[1] = Gy;
 
-        uint256[] memory c = new uint256[](y.length / 2);
+        uint256[] memory c = new uint256[](y.length/2);
         c[0] = c_0;
 
         uint[2] memory H = H2(y);
 
-        for (uint i = 0; i < y.length; i++) {
+        for (uint i = 0; i < y.length/2; i++) {
 
             uint[2] memory Y;
-            Y[0] = y[i][0];
-            Y[1] = y[i][1];
+            Y[0] = y[2*i];
+            Y[1] = y[2*i+1];
 
             uint256[2] memory z_1 = multiplyAddPoints(s[i], G, c[i], Y);
             uint256[2] memory z_2 = multiplyAddPoints(s[i], H, c[i], link);
 
-            if (i < (y.length / 2) - 1) {
+            if (i < (y.length/2) - 1) {
                 c[i + 1] = H1(y, link, message, z_1, z_2);
             }
             else {

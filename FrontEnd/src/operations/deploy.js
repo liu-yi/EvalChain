@@ -16,10 +16,10 @@ var passcode = ''
 var abi = compiledContractDefinition['contracts']['Evaluating']['abi']
 var bin = compiledContractDefinition['contracts']['Evaluating']['bin']
 
-var EVALUATION = {}
+var CONTRACT = {}
 
 export function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
-  EVALUATION.publicKeys = _publicKeys.map(
+  CONTRACT.publicKeys = _publicKeys.map(
     (item) => {
       return [
         new BN(item.toString().split(',')[0].substring(1)),
@@ -27,8 +27,8 @@ export function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
       ]
     }
   )
-  EVALUATION.evaluatingStartTime = _evaluatingStartTime
-  EVALUATION.evaluatingEndTime = _evaluatingEndTime
+  CONTRACT.evaluatingStartTime = _evaluatingStartTime
+  CONTRACT.evaluatingEndTime = _evaluatingEndTime
   deployContract(abi, bin, from, passcode, publishEvaluation)
 }
 
@@ -45,16 +45,16 @@ function deployContract(contractAbi, contractBin, account, passcode, deployCallB
 
 function publishEvaluation(contract) {
   console.log('contract deploy address: ' + contract.options.address)
-  EVALUATION.address = contract.options.address
-  EVALUATION.contract = contract
+  CONTRACT.address = contract.options.address
+  CONTRACT.contract = contract
   finishSetup()
 }
 
 function finishSetup() {
-  EVALUATION.contract.methods.finishSetUp(
-    EVALUATION.publicKeys,
-    EVALUATION.evaluatingStartTime,
-    EVALUATION.evaluatingEndTime
+  CONTRACT.contract.methods.finishSetUp(
+    CONTRACT.publicKeys,
+    CONTRACT.evaluatingStartTime,
+    CONTRACT.evaluatingEndTime
   ).call(
     {
       from: '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9'
@@ -62,10 +62,10 @@ function finishSetup() {
   ).then(
     function(result) {
       if (result) {
-        EVALUATION.contract.methods.finishSetUp(
-          EVALUATION.publicKeys,
-          EVALUATION.evaluatingStartTime,
-          EVALUATION.evaluatingEndTime
+        CONTRACT.contract.methods.finishSetUp(
+          CONTRACT.publicKeys,
+          CONTRACT.evaluatingStartTime,
+          CONTRACT.evaluatingEndTime
         ).send(
           {
             from: '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9',
