@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;">
+  <div class="app-container">
     <el-row>
       <el-col :span="24">
         <h1 style="padding: 18px 20px; border-bottom: 1px solid #ebeef5; text-align:center">{{evalForm.name}}</h1>
@@ -10,7 +10,7 @@
     </el-row>
     <el-row>
       <el-col :span="24" v-for="(item, index) in evalForm.items" :key="index">
-        <el-card style="margin: 20px; margin-top:20px; padding: 10px;">
+        <el-card style="margin: 20px; margin-top:20px; padding: 10px;" shadow="hover">
           <div slot="header" class="clearfix">
             <span>{{index + 1 +'. ' + item.question}}</span>
           </div>
@@ -24,11 +24,7 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-row>
-      <el-col :span="24" style="margin: 20px; margin-top:30px;">
-        <el-button :disabled="isCompleted" type="primary" @click="onEval">Submit Directly</el-button>
-      </el-col>
-    </el-row>
+
   </div>
 </template>
 
@@ -113,54 +109,31 @@ export default {
             content: 'good'
           }
         ],
-        M: {}
+        result: []
       },
       evaluation: null,
-      Address: '0x26548f4Fcca62328910C90BEC44DF425B68cb80B',
       contractAddress: this.$route.params.address,
-      signingKey:
-        '110078236347245708972018669511939349091653777570544332263980702297721204951700'
     }
   },
   watch: {},
   mounted() {
-    this.evaluation = new EVALUATION(this.contractAddress)
+    new EVALUATION(this.contractAddress).then(
+      res => {
+        this.evaluation = res
+        for(let i = 0; i < this.evaluation.evalChoices[0].length; i++){
+          this.evalForm.result[i] = [0, 0, 0, 0, 0, 0]
+          for(let j = 0; j < this.evaluation.evalChoices.length; j++){
+            this.evalForm.result[i][parseInt(this.evaluation.evalChoices[j][i]) - 1]++
+          }
+        }
+      }
+    )
+
+    
   },
   computed: {
-    isCompleted: function() {
-      let flag = false
-      for (const item in this.evalForm.items) {
-        if (
-          this.evalForm.items[item].required &&
-          this.evalForm.items[item].content === null
-        ) {
-          flag = true
-        }
-      }
-      return flag
-    }
   },
   methods: {
-    onEval() {
-      let evalChoice = ''
-      for (const item in this.evalForm.items) {
-        if (this.evalForm.items[item].type === 'score') {
-          if (this.evalForm.items[item].content === null) {
-            evalChoice += '6'
-          } else {
-            evalChoice += this.evalForm.items[item].content
-          }
-        } else if (this.evalForm.items[item].type === 'comment') {
-          this.evalForm.M.evalComment = this.evalForm.items[item].content
-        }
-      }
-      this.evalForm.M.evalChoice = evalChoice
-
-      generateSignAndPublish(this.evaluation, this.evalForm.M, this.signingKey)
-    },
-    resetForm(formName) {
-      this.$refs[formName].resetFields()
-    }
   }
 }
 </script>

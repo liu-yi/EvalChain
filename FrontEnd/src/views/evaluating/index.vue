@@ -116,15 +116,18 @@ export default {
         M: {}
       },
       evaluation: null,
-      Address: '0x26548f4Fcca62328910C90BEC44DF425B68cb80B',
       contractAddress: this.$route.params.address,
       signingKey:
-        '110078236347245708972018669511939349091653777570544332263980702297721204951700'
+        '96829084690255660677892707577023446916029495870152254616424425187575992568730'
     }
   },
   watch: {},
   mounted() {
-    this.evaluation = new EVALUATION(this.contractAddress)
+    new EVALUATION(this.contractAddress).then(
+      res => {
+        this.evaluation = res
+      }
+    )
   },
   computed: {
     isCompleted: function() {
@@ -168,3 +171,13 @@ export default {
 <style scoped>
 
 </style>
+
+Class 1401:Array[5]
+0:Object
+id:11410601
+key:"(17915281221802873096856641166521057039143456334071874736021765824794405260429,77176625651335367231860080288830679977238984351672979400577456301707054519270)"
+label:"学生010"
+sk:"96829084690255660677892707577023446916029495870152254616424425187575992568730"
+1:Object
+2:Object
+3

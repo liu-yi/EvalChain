@@ -222,7 +222,7 @@ library RingSignature {
     }
 
 
-    function verifyRingSignature(uint256 message, uint256[] y, uint256 c_0, uint256[] s, uint256[2] link) internal constant returns(bool) {
+    function verifyRingSignature(uint256 message, uint256[] y, uint256 c_0, uint256[] s, uint256[2] link, uint[2] H) internal constant returns(bool) {
         uint[2] memory G;
         G[0] = Gx;
         G[1] = Gy;
@@ -230,7 +230,7 @@ library RingSignature {
         uint256[] memory c = new uint256[](y.length/2);
         c[0] = c_0;
 
-        uint[2] memory H = H2(y);
+        // uint[2] memory H = H2(y);
 
         for (uint i = 0; i < y.length/2; i++) {
 

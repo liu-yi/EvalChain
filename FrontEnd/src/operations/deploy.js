@@ -11,7 +11,6 @@ if (typeof web3 !== 'undefined') {
 }
 
 var from = web3.eth.accounts[0]
-var passcode = ''
 
 var abi = compiledContractDefinition['contracts']['Evaluating']['abi']
 var bin = compiledContractDefinition['contracts']['Evaluating']['bin']
@@ -27,12 +26,14 @@ export function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
       ]
     }
   )
+  CONTRACT.publicKeys = [].concat.apply([], CONTRACT.publicKeys)
+
   CONTRACT.evaluatingStartTime = _evaluatingStartTime
   CONTRACT.evaluatingEndTime = _evaluatingEndTime
-  deployContract(abi, bin, from, passcode, publishEvaluation)
+  deployContract(abi, bin, from, publishEvaluation)
 }
 
-function deployContract(contractAbi, contractBin, account, passcode, deployCallBack) {
+function deployContract(contractAbi, contractBin, account, deployCallBack) {
   var contractClass = new web3.eth.Contract(contractAbi)
 
   return contractClass.deploy({

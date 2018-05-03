@@ -1,5 +1,5 @@
-pragma solidity ^0.4.10;
-// pragma experimental ABIEncoderV2;
+// pragma solidity ^0.4.10;
+pragma experimental ABIEncoderV2;
 
 import "./SECP256k1.sol";
 import "./RingSignature.sol";
@@ -26,6 +26,7 @@ contract Evaluating is owned{
     uint public evaluatingStartTime = 0;
     uint public evaluatingEndTime;
     uint public minimumPhaseTime = 10;
+    uint[2] public H;
 
     /****************************************
                 END SETUP DATA
@@ -76,7 +77,7 @@ contract Evaluating is owned{
     }
 
     function finishSetUp(
-        uint256[2][] _publicKeys,
+        uint256[] _publicKeys,
         uint _evaluatingStartTime,
         uint _evaluatingEndTime) public inState(State.SETUP) onlyOwner() returns (bool) {
 
@@ -92,11 +93,13 @@ contract Evaluating is owned{
             return false;
         }
 
-        for(uint i = 0; i < _publicKeys.length; i++) {
-            if(!registerEvaluator(_publicKeys[i])) {
+        for(uint i = 0; i < _publicKeys.length/2; i++) {
+            if(!registerEvaluator([_publicKeys[2 * i], _publicKeys[2 * i + 1]])) {
                 return false;
             }
         }
+
+        H = RingSignature.H2(_publicKeys);
 
         evaluatingStartTime = _evaluatingStartTime;
         evaluatingEndTime = _evaluatingEndTime;
@@ -146,7 +149,7 @@ contract Evaluating is owned{
             }
         }
 
-        if(RingSignature.verifyRingSignature(uint256(keccak256(evalChoice))^uint256(keccak256(evalComment)), pubKeys, c_0, s, link)) {       
+        if(RingSignature.verifyRingSignature(uint256(keccak256(evalChoice))^uint256(keccak256(evalComment)), pubKeys, c_0, s, link, H)) {       
             evalChoices.push(evalChoice);
             evalComments.push(evalComment);
             registeredEvalLink[keccak256(link)] = true;
