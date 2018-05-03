@@ -4,12 +4,6 @@ import BigInteger from 'bigi'
 import web3Utils from 'web3-utils'
 import BN from 'bn.js'
 
-// var ecurve = require('ecurve')
-// var secureRandom = require('secure-random')
-// var BigInteger = require('bigi')
-// const web3Utils = require('web3-utils')
-// const BN = require('bn.js')
-
 var ecparams = ecurve.getCurveByName('secp256k1')
 
 function mapToCurve(x) {
@@ -224,8 +218,16 @@ function hashToInt(y) {
   return BigInteger.fromHex(web3Utils.keccak256('0x' + temp_y.join('')).substring(2))
 }
 
+function randrange(range) {
+  var r = secureRandom.randomBuffer(32)
+  while (BigInteger.fromHex(r.toString('hex')).compareTo(range) >= 0) {
+    r = secureRandom.randomBuffer(32)
+  }
+  return BigInteger.fromHex(r.toString('hex'))
+}
+
 // key_idx is not big integer!!
-function ringSignature(siging_key, key_idx, M, y) {
+function ringSignature(siging_key, key_idx, M, y, old_y) {
   var G = ecparams.G
 
   // n is not big integer!
@@ -236,7 +238,7 @@ function ringSignature(siging_key, key_idx, M, y) {
   var z_1
   var z_2
 
-  var H = H2(y)
+  var H = H2(old_y)
 
   var link = H.multiply(siging_key)
 
@@ -273,15 +275,19 @@ function ringSignature(siging_key, key_idx, M, y) {
   }
 }
 
-function randrange(range) {
-  var r = secureRandom.randomBuffer(32)
-  while (BigInteger.fromHex(r.toString('hex')).compareTo(range) >= 0) {
-    r = secureRandom.randomBuffer(32)
+function shuffle(_list) {
+  var list = _list.slice(0)
+
+  for (var i = list.length - 1; i >= 0; i--) {
+    var randomIndex = Math.floor(Math.random() * (i + 1))
+    var itemAtIndex = list[randomIndex]
+    list[randomIndex] = list[i]
+    list[i] = itemAtIndex
   }
-  return BigInteger.fromHex(r.toString('hex'))
+  return list
 }
 
-export function verifyRingSignature(message, y, c_0, s, link) {
+export function verifyRingSignature(message, y, c_0, s, link, old_y) {
   var G = ecparams.G
   // n i s not a big integer!
   var n = y.length
@@ -289,7 +295,7 @@ export function verifyRingSignature(message, y, c_0, s, link) {
   c[0] = c_0
   var z_1
   var z_2
-  var H = H2(y)
+  var H = H2(old_y)
 
   for (var i = 0; i < n; i++) {
     z_1 = G.multiply(s[i]).add(y[i].multiply(c[i]))
@@ -305,18 +311,6 @@ export function verifyRingSignature(message, y, c_0, s, link) {
   return false
 }
 
-function shuffle(_list) {
-  var list = _list.slice(0)
-
-  for (var i = list.length - 1; i >= 0; i--) {
-    var randomIndex = Math.floor(Math.random() * (i + 1))
-    var itemAtIndex = list[randomIndex]
-    list[randomIndex] = list[i]
-    list[i] = itemAtIndex
-  }
-  return list
-}
-
 /*
 * signing_key: private key for ring signature
 * M: message object, where
@@ -327,36 +321,36 @@ function shuffle(_list) {
 * _y: public key array => bigInteger[][2]
 
 */
+
+function obtainDigest(M) {
+  return BigInteger.fromHex(web3Utils.soliditySha3(new BN(M.evalChoice.toString())).substring(2)).xor(
+    BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
+  )
+}
+
 export function ringSign(signingKey, M, _y) {
-  var y = shuffle(_y)
-  signingKey = BigInteger(signingKey)
-  y = y.map(
+  var old_y = _y.map(
     (item) => {
-      return new ecurve.Point(ecparams, item[0], item[1], BigInteger('1'))
+      return new ecurve.Point(ecparams, BigInteger(item[0]), BigInteger(item[1]), BigInteger('1'))
     }
   )
-  var signingkeyString = ecparams.G.multiply(signingKey).toString()
+  var y = shuffle(old_y)
+  signingKey = BigInteger(signingKey)
+
+  var pkString = ecparams.G.multiply(signingKey).toString()
   var key_idx
   for (let i = 0; i < y.length; i++) {
-    if (y[i].toString() === (signingkeyString)) {
+    if (y[i].toString() === (pkString)) {
       key_idx = i
     }
   }
 
-  var MDigest = BigInteger.fromHex(web3Utils.soliditySha3(new BN(M.evalChoice.toString())).substring(2)).xor(
-    BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
-  )
+  var MDigest = obtainDigest(M)
 
-  var signature = ringSignature(signingKey, key_idx, MDigest, y)
-  // console.log(signingKey.toString())
-  // console.log(signingkeyString)
-  // console.log(key_idx)
-  // console.log(MDigest.toString())
-  // console.log(y.toString())
-  // console.log(signature.c_0.toString())
-  // console.log(signature.s.toString())
-  // console.log(signature.link.toString())
-  console.log(verifyRingSignature(MDigest, y, signature.c_0, signature.s, signature.link))
+  var signature = ringSignature(signingKey, key_idx, MDigest, y, old_y)
+
+  console.log(verifyRingSignature(MDigest, y, signature.c_0, signature.s, signature.link, old_y))
+
   return [signature, y]
 }
 
@@ -370,30 +364,30 @@ export function generateKeyPair() {
   return key
 }
 
-function main() {
-  var number_participants = 10
-  var x = new Array(number_participants)
-  for (let i = 0; i < number_participants; i++) {
-    x[i] = randrange(ecparams.n)
-  }
-  var y = x.map(
-    (item) => {
-      return ecparams.G.multiply(item)
-    }
-  )
+// function main() {
+//   var number_participants = 10
+//   var x = new Array(number_participants)
+//   for (let i = 0; i < number_participants; i++) {
+//     x[i] = randrange(ecparams.n)
+//   }
+//   var y = x.map(
+//     (item) => {
+//       return ecparams.G.multiply(item)
+//     }
+//   )
 
-  var my = 2
-  var M = {}
-  M.evalChoice = '0x' + randrange(ecparams.n).toString()
-  M.evalComment = 'It is very good!'
+//   var my = 2
+//   var M = {}
+//   M.evalChoice = '0x' + randrange(ecparams.n).toString()
+//   M.evalComment = 'It is very good!'
 
-  var [sign, newY] = ringSign(x[my], M, y)
-  var MDigest = BigInteger.fromHex(web3Utils.keccak256(M.evalChoice).substring(2)).xor(
-    BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
-  )
-  console.log(verifyRingSignature(MDigest, newY, sign.c_0, sign.s, sign.link))
+//   var [sign, newY] = ringSign(x[my], M, y)
+//   var MDigest = BigInteger.fromHex(web3Utils.keccak256(M.evalChoice).substring(2)).xor(
+//     BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
+//   )
+//   console.log(verifyRingSignature(MDigest, newY, sign.c_0, sign.s, sign.link))
 
-  var message = randrange(ecparams.n)
-  var signature = ringSignature(x[my], my, message, y)
-  console.log(verifyRingSignature(message, y, signature.c_0, signature.s, signature.link))
-}
+//   var message = randrange(ecparams.n)
+//   var signature = ringSignature(x[my], my, message, y)
+//   console.log(verifyRingSignature(message, y, signature.c_0, signature.s, signature.link))
+// }

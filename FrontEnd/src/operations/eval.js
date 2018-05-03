@@ -2,7 +2,6 @@
 import Web3 from 'web3'
 import { ringSign } from '@/operations/ringSign'
 import BN from 'bn.js'
-import BigInteger from 'bigi'
 
 var web3
 
@@ -40,8 +39,6 @@ export function publishEval(contract, M, _pubKeys, sign) {
     new BN(sign.link.toString().split(',')[1].slice(0, -1))
   ]
 
-  console.log(EVAL.evalComment)
-
   EVAL.contract.methods.Evaluate(
     EVAL.evalChoice,
     EVAL.evalComment,
@@ -52,7 +49,7 @@ export function publishEval(contract, M, _pubKeys, sign) {
   ).call().then(
     (res) => {
       console.log(res)
-      if (false) {
+      if (res) {
         EVAL.contract.methods.Evaluate(
           EVAL.evalChoice,
           EVAL.evalComment,
@@ -75,15 +72,7 @@ export function publishEval(contract, M, _pubKeys, sign) {
 }
 
 export function generateSignAndPublish(evaluation, M, signingKey) {
-  var y = evaluation.evaluators.map(
-    (item) => {
-      return [
-        BigInteger(item[0]),
-        BigInteger(item[1])
-      ]
-    }
-  )
-  var [sign, pubKeys] = ringSign(signingKey, M, y)
+  var [sign, pubKeys] = ringSign(signingKey, M, evaluation.evaluators)
 
   publishEval(evaluation.contract, M, pubKeys, sign)
 }

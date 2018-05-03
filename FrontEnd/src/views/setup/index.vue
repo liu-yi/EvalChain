@@ -47,12 +47,9 @@
 </template>
 
 <script>
-import { dateToUnixTime } from "@/utils/time";
-import { publish } from "@/operations/deploy";
-import ecurve from "ecurve";
-import secureRandom from "secure-random";
-import BigInteger from "bigi";
-import { generateKeyPair } from "@/operations/ringSign";
+import { dateToUnixTime } from '@/utils/time'
+import { publish } from '@/operations/deploy'
+import generateKeyPair from '@/operations/generateKeyPair'
 
 export default {
   data() {
@@ -60,31 +57,31 @@ export default {
       just for test
     */
     var generateData = _ => {
-      var data = {};
+      var data = {}
       for (let i = 1; i <= 3; i++) {
-        let className;
+        let className
         if (i < 10) {
-          className = "0" + i;
+          className = '0' + i
         } else {
-          className = "" + i;
+          className = '' + i
         }
-        data["Class 14" + className] = [];
+        data['Class 14' + className] = []
         for (let j = 0; j < 5; j++) {
           var keypair = generateKeyPair()
-          data["Class 14" + className][j] = {
+          data['Class 14' + className][j] = {
             key: keypair.pk.toString(),
-            //just for test
+            // just for test
             sk: keypair.sk.toString(),
             id: 11410601,
-            label: "学生" + className + j
-          };
+            label: '学生' + className + j
+          }
         }
       }
-      return data;
-    };
+      return data
+    }
     return {
       data: [],
-      choosenFrom: [], //被选中的来源的对象，不重要
+      choosenFrom: [], // 被选中的来源的对象，不重要
       list: [],
       loading: false,
       showTransfer: false,
@@ -93,94 +90,92 @@ export default {
           <span>
             {option.id} {option.label}
           </span>
-        );
+        )
       },
       setupForm: {
-        courseName: "Fall 2018 CS101 Discrete Mathematics",
-        time: "",
+        courseName: 'Fall 2018 CS101 Discrete Mathematics',
+        time: '',
         ringSize: 500,
         participantsFrom: [],
-        choosenCandidates: [] //被选中的参与评教的人
+        choosenCandidates: [] // 被选中的参与评教的人
       },
       setupRules: {
-        courseName: [{ required: true, trigger: "blur" }],
+        courseName: [{ required: true, trigger: 'blur' }],
         time: [
           {
             required: true,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         participantsFrom: [
           {
             required: true,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ]
       },
       datasource: generateData()
-    };
+    }
   },
   computed: {
     isCompleted: function() {
-      let flag = false;
-      for (let item in this.setupForm) {
+      let flag = false
+      for (const item in this.setupForm) {
         if (this.setupForm[item].length === 0) {
-          flag = true;
+          flag = true
         }
       }
-      return flag;
+      return flag
     }
   },
   watch: {
-    "setupForm.participantsFrom": function(newFrom, oldFrom) {
-      this.data = [];
-      var keyset = [];
+    'setupForm.participantsFrom': function(newFrom, oldFrom) {
+      this.data = []
+      var keyset = []
       if (newFrom.length > 0) {
-        this.showTransfer = true;
+        this.showTransfer = true
       }
       for (let j = 0; j < newFrom.length; j++) {
-        let item = newFrom[j];
+        const item = newFrom[j]
         for (let i = 0; i < this.datasource[item].length; i++) {
-          if (keyset.indexOf(this.datasource[item][i].key) == -1) {
-            keyset.push(this.datasource[item][i].key);
-            this.data.push(this.datasource[item][i]);
+          if (keyset.indexOf(this.datasource[item][i].key) === -1) {
+            keyset.push(this.datasource[item][i].key)
+            this.data.push(this.datasource[item][i])
           }
         }
       }
     }
   },
   mounted() {
-    this.list = [];
-    for (let item in this.datasource) {
+    this.list = []
+    for (const item in this.datasource) {
       this.list.push({
         value: item,
         label: item
-      });
+      })
     }
-    console.log(this.list);
   },
   methods: {
     onPublish() {
       var startTime = dateToUnixTime(this.setupForm.time[0])
       var endTime = dateToUnixTime(this.setupForm.time[1])
       publish(this.setupForm.choosenCandidates, startTime, endTime)
-
     },
     remoteMethod(query) {
-      if (query !== "") {
-        this.loading = true;
+      if (query !== '') {
+        this.loading = true
         setTimeout(() => {
-          this.loading = false;
+          this.loading = false
           this.choosenFrom = this.list.filter(item => {
-            return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1;
-          });
-        }, 200);
+            return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1
+          })
+        }, 200)
       } else {
-        this.choosenFrom = [];
+        this.choosenFrom = []
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

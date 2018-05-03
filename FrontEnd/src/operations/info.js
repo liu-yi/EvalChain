@@ -36,10 +36,10 @@ export default function EVALUATION(address) {
     (res) => {
       this.evalChoices = res
     })
-  this.contract.methods.getEvalComments().call().then(
-    (res) => {
-      console.log(res)
-      this.evalComments = res
-    })
+  // this.contract.methods.getEvalComments().call().then(
+  //   (res) => {
+  //     console.log(res)
+  //     this.evalComments = res
+  //   })
 }
 

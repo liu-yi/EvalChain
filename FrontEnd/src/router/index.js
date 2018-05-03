@@ -58,10 +58,22 @@ export const constantRouterMap = [
     component: Layout,
     hidden: true,
     children: [{
-      path: 'index',
+      path: ':address',
       name: 'Evaluating',
       meta: { title: 'Evaluating', icon: 'user' },
       component: () => import('@/views/evaluating/index')
+    }]
+  },
+
+  {
+    path: '/evaluated',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: ':address',
+      name: 'Evaluated',
+      meta: { title: 'Evaluating', icon: 'user' },
+      component: () => import('@/views/evaluated/index')
     }]
   },
 
@@ -70,7 +82,7 @@ export const constantRouterMap = [
     component: Layout,
     children: [
       {
-        path: 'index',
+        path: '',
         name: 'Information',
         component: () => import('@/views/info/index'),
         meta: { title: 'Information', icon: 'user' }
