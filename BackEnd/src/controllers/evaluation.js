@@ -4,7 +4,8 @@ import evaluationHelper from '../dbhelper/evaluationHelper'
 const secret = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 
 export let Post = async (ctx, next) => {
-  let decoded = jwt.verify(token.substr(7), secret)
+
+  let decoded = await jwt.verify(token.substr(7), secret)
   if (decoded.userInfo) {
   var evaluation = ctx.request.body
   try {
