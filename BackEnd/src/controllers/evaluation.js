@@ -9,21 +9,24 @@ const secret = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 export let Post = async (ctx, next) => {
   let token = ctx.request.header.authorization
   let userToken = await jwt.verify(token.substr(7), secret)
-  if (userToken.userRole === 'admin') {
+  if (userToken.role === 'admin') {
     var evaluation = ctx.request.body
     try {
       await deployEvaluation(evaluation)
       ctx.body = {
+        code: 20000,
         success: true
       }
     } catch (e) {
       ctx.body = {
-        success: false
+        success: false,
+        message: 'deploy contract fail'
       }
     }
   } else {
     ctx.body = {
-      success: false
+      success: false,
+      message: 'Users cannot deploy contract'
     }
   }
 }

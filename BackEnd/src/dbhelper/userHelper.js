@@ -4,16 +4,8 @@ import xss from 'xss'
 var userHelper = {}
 
 userHelper.findById = async (id) => {
-  var query = User.find({id})
-  var res = null
-  await query.exec(function (err, user) {
-    if (err) {
-      res = {}
-    } else {
-      res = user
-    }
-  })
-  return res
+  let user = await User.findOne({id})
+  return user
 }
 
 userHelper.findAllUser = async () => {

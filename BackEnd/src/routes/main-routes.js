@@ -25,6 +25,7 @@ router
   // .get('/evaluations', controllers.evaluation.GetAll)
   // .delete('/evaluations/:address', controllers.evaluation.Delete)
   .get('/user/:id', controllers.user.Get)
+  .get('/user/info', controllers.user.Get)
   // .post('/user', controllers.user.Post)
   // .delete('/user', controllers.user.Delete)
 
