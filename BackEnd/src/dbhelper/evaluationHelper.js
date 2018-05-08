@@ -56,3 +56,5 @@ evaluationHelper.deleteEvaluation = async (evaluation) => {
 
   return flag
 }
+
+export default evaluationHelper

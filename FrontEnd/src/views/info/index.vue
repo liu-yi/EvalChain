@@ -46,8 +46,8 @@
 <script>
 export default {
   data() {
-    var validateEmail = (rule, value, callback) => {}
-    var validateCheckPassword = (rule, value, callback) => {
+    const validateEmail = (rule, value, callback) => {}
+    const validateCheckPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword) {
         if (value === '') {
           callback(new Error('Please input the password again!'))
@@ -60,14 +60,14 @@ export default {
         }
       }
     }
-    var validateCurrentPassword = (rule, value, callback) => {
+    const validateCurrentPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword || this.infoForm.changePublicKey) {
         if (value === '') {
           callback(new Error('Please input the current password!'))
         }
       }
     }
-    var validateNewPassword = (rule, value, callback) => {
+    const validateNewPassword = (rule, value, callback) => {
       if (this.infoForm.changePassword) {
         if (value === '') {
           callback(new Error('Please input the current password!'))

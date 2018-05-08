@@ -31,3 +31,8 @@ export function validatAlphabets(str) {
   return reg.test(str)
 }
 
+export function validateId(str) {
+  const reg = /^\d{8}$/
+  return reg.test(str)
+}
+

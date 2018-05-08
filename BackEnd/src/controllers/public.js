@@ -1,3 +1,4 @@
+import loginHelper from '../dbhelper/loginHelper'
 import userHelper from '../dbhelper/userHelper'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
@@ -6,24 +7,27 @@ import xss from 'xss'
 
 const secret = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 
-export let Login = (ctx, next) => {
-  var id = xss(ctx.request.body.id.trim())
+export let Login = async (ctx, next) => {
+  var username = xss(ctx.request.body.username.trim())
   var password = ctx.request.body.password
   const loginInfo = {
-    id,
+    id: username,
     password
   }
-  let user = userHelper.findForLogin(loginInfo)
+  console.log(loginInfo)
+  let user = await loginHelper.findForLogin(loginInfo)
   if (user) {
     let userToken = {
       id: user.id,
       role: user.role
     }
-    const token = jwt.sign(userToken, secret, {expireIn: '1h'})
+    const token = jwt.sign(userToken, secret, {expiresIn: '1h'})
     ctx.body = {
       message: 'get token successfully',
-      code: 1,
-      token
+      code: 20000,
+      data: {
+        token
+      }
     }
   } else {
     ctx.body = {
@@ -35,22 +39,27 @@ export let Login = (ctx, next) => {
 
 export let Signup = async (ctx, next) => {
   var id = xss(ctx.request.body.id.trim())
-  var canSignup = await userHelper.isExisted(id)
+  console.log(ctx.request.body)
+  var canSignup = await loginHelper.canSignup(id)
   if (canSignup) {
     var user = ctx.request.body
     try {
-      userHelper.addUser(user)
+      await loginHelper.addUser(user)
+      await userHelper.addUser(user)
       ctx.body = {
+        code: 20000,
         success: true
       }
     } catch (e) {
       ctx.body = {
-        success: false
+        success: false,
+        message: 'Database wrong in signup phase'
       }
     }
   } else {
     ctx.body = {
-      success: false
+      success: false,
+      message: 'The id is existed'
     }
   }
 }

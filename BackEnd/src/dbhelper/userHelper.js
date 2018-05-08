@@ -33,14 +33,12 @@ userHelper.addUser = async (user) => {
   user = new User({
     id: xss(user.id),
     name: xss(user.name),
-    emailAddress: xss(user.emailAddress),
+    emailAddress: xss(user.id + '@mail.sustc.edu.cn'),
     pk: xss(user.pk),
-    password: user.password,
     department: xss(user.department),
     role: 'user'
   })
   user = await user.save()
-  return user
 }
 
 userHelper.deleteUser = async (id) => {
@@ -53,14 +51,6 @@ userHelper.deleteUser = async (id) => {
     }
   })
   return flag
-}
-
-userHelper.findForLogin = async (loginInfo) => {
-  var user = await User.findOne({
-    id: loginInfo.id,
-    password: loginInfo.password
-  })
-  return user
 }
 
 userHelper.canSignup = async (id) => {

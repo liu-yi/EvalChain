@@ -14,7 +14,9 @@ export let Put = async (ctx, next) => {
 }
 
 export let Get = async (ctx, next) => {
-
+  var id = xss(ctx.params.id)
+  var user = userHelper.findById(id)
+  ctx.body = user
 }
 
 export let Delete = async (ctx, next) => {
