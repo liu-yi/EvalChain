@@ -60,7 +60,6 @@
                       <el-form-item label="" v-show="showKeyPairMessage">
                         <el-input v-model="sk"></el-input>
                       </el-form-item>
-
                       <el-form-item label="">
                         <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleSignup">Sign Up</el-button>
                       </el-form-item>
@@ -144,8 +143,8 @@ export default {
         name: "刘逸"
       },
       loginForm: {
-        id: "admin",
-        password: "admin"
+        id: "11410601",
+        password: "8270614"
       },
       loginRules: {
         id: [{ required: true, trigger: "blur", validator: validateLoginId }],

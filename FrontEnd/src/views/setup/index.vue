@@ -1,9 +1,13 @@
 <template>
-  <div class="app-container" style="padding-top: 60px;">
-    <el-form ref="setupForm" :model="setupForm" :rules="setupRules" label-width="180px" style="width:700px;">
+  <div class="app-container">
+    <el-form ref="setupForm" :model="setupForm" :rules="setupRules" label-width="110px" style="width:700px;">
 
-      <el-form-item label="Course Name" prop="courseName">
-        <el-input v-model="setupForm.courseName"></el-input>
+      <el-form-item label="Course Name" prop="name">
+        <el-input v-model="setupForm.name"></el-input>
+      </el-form-item>
+
+      <el-form-item label="Instructor" prop="instructor">
+        <el-input v-model="setupForm.instructor"></el-input>
       </el-form-item>
 
       <el-form-item label="Time" prop="time">
@@ -13,23 +17,12 @@
         </div>
       </el-form-item>
 
-      <el-form-item label="Participants" prop="participantsFrom">
-        <div style="padding-bottom: 20px">
-          <el-select style="width:100%" v-model="setupForm.participantsFrom" multiple filterable remote reserve-keyword placeholder="Participants From" :remote-method="remoteMethod" :loading="loading">
-            <el-option v-for="item in choosenFrom" :key="item.value" :label="item.label" :value="item.value">
-            </el-option>
-          </el-select>
-        </div>
-        <el-alert v-show="showTransfer" title="Select more than one candidate from left side to right side." type="info" center show-icon>
-        </el-alert>
-      </el-form-item>
-
-      <el-form-item v-show="showTransfer" label="" prop="choosenCandidates">
+      <el-form-item v-show="showTransfer" label="" prop="participants">
         <div>
-          <el-transfer style="text-align: left; display: inline-block; " v-model="setupForm.choosenCandidates" filterable :titles="['Candidates', 'Participants']" :format="{
+          <el-transfer style="text-align: left; display: inline-block; width: 100%" v-model="participants" filterable :titles="['Candidates', 'Participants']" :format="{
         noChecked: '${total}',
         hasChecked: '${checked}/${total}'
-      }" :data="data" :render-content="renderFunc">
+      }" :data="transferData" :render-content="renderFunc">
           </el-transfer>
         </div>
       </el-form-item>
@@ -38,7 +31,7 @@
       </div>
       <el-form-item>
         <div>
-          <el-button :disabled="isCompleted" style="width:95%" type="primary" @click="onPublish">Publish</el-button>
+          <el-button :disabled="!isCompleted" style="width:85%" type="primary" :loading="loading" @click="onPublish">Publish</el-button>
         </div>
       </el-form-item>
 
@@ -47,135 +40,89 @@
 </template>
 
 <script>
-import { dateToUnixTime } from '@/utils/time'
-import { publish } from '@/operations/deploy'
-import generateKeyPair from '@/operations/generateKeyPair'
+import { dateToUnixTime } from "@/utils/time";
+import { publish } from "@/operations/deploy";
+import generateKeyPair from "@/operations/generateKeyPair";
+import { getAll, setup } from "@/api/setup";
 
 export default {
   data() {
-    /*
-      just for test
-    */
-    var generateData = _ => {
-      var data = {}
-      for (let i = 1; i <= 3; i++) {
-        let className
-        if (i < 10) {
-          className = '0' + i
-        } else {
-          className = '' + i
-        }
-        data['Class 14' + className] = []
-        for (let j = 0; j < 5; j++) {
-          var keypair = generateKeyPair()
-          data['Class 14' + className][j] = {
-            key: keypair.pk.toString(),
-            // just for test
-            sk: keypair.sk.toString(),
-            id: 11410601,
-            label: '学生' + className + j
-          }
-        }
-      }
-      return data
-    }
     return {
-      data: [],
-      choosenFrom: [], // 被选中的来源的对象，不重要
-      list: [],
       loading: false,
-      showTransfer: false,
+      showTransfer: true, // need to extend
       renderFunc(h, option) {
         return (
           <span>
             {option.id} {option.label}
           </span>
-        )
+        );
       },
       setupForm: {
-        courseName: 'Fall 2018 CS101 Discrete Mathematics',
-        time: '',
-        ringSize: 500,
-        participantsFrom: [],
-        choosenCandidates: [] // 被选中的参与评教的人
+        name: "Fall 2018 CS101 Discrete Mathematics",
+        instructor: "王琦",
+        time: "",
       },
+      participants: [], // 被选中的参与评教的人
       setupRules: {
-        courseName: [{ required: true, trigger: 'blur' }],
-        time: [
-          {
-            required: true,
-            trigger: 'blur'
-          }
-        ],
-        participantsFrom: [
-          {
-            required: true,
-            trigger: 'blur'
-          }
-        ]
+        name: [{ required: true, trigger: "blur" }],
+        time: [{ required: true, trigger: "blur" }],
+        instructor: [{ required: true, trigger: "blur" }]
       },
-      datasource: generateData()
-    }
+      transferData: [],
+      loading: false,
+      pkSet: [],
+      idSet: []
+    };
   },
   computed: {
     isCompleted: function() {
-      let flag = false
+      let flag = true;
       for (const item in this.setupForm) {
-        if (this.setupForm[item].length === 0) {
-          flag = true
-        }
-      }
-      return flag
-    }
-  },
-  watch: {
-    'setupForm.participantsFrom': function(newFrom, oldFrom) {
-      this.data = []
-      var keyset = []
-      if (newFrom.length > 0) {
-        this.showTransfer = true
-      }
-      for (let j = 0; j < newFrom.length; j++) {
-        const item = newFrom[j]
-        for (let i = 0; i < this.datasource[item].length; i++) {
-          if (keyset.indexOf(this.datasource[item][i].key) === -1) {
-            keyset.push(this.datasource[item][i].key)
-            this.data.push(this.datasource[item][i])
+        if (this.setupForm[item] !== undefined) {
+          if (this.setupForm[item].length === 0) {
+            flag = false;
           }
         }
       }
+      return flag;
     }
   },
-  mounted() {
-    this.list = []
-    for (const item in this.datasource) {
-      this.list.push({
-        value: item,
-        label: item
-      })
-    }
+  async created() {
+    let res = await getAll();
+    res.data.forEach(element => {
+      let item = {};
+      item.key = element.id
+      item.label = element.name;
+      this.transferData.push(item);
+      this.pkSet.push(element.pk)
+      this.idSet.push(element.id)
+    });
   },
   methods: {
-    onPublish() {
-      var startTime = dateToUnixTime(this.setupForm.time[0])
-      var endTime = dateToUnixTime(this.setupForm.time[1])
-      publish(this.setupForm.choosenCandidates, startTime, endTime)
-    },
-    remoteMethod(query) {
-      if (query !== '') {
-        this.loading = true
-        setTimeout(() => {
-          this.loading = false
-          this.choosenFrom = this.list.filter(item => {
-            return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1
-          })
-        }, 200)
-      } else {
-        this.choosenFrom = []
-      }
+    async onPublish() {
+      this.loading = true;
+      let startTime = dateToUnixTime(this.setupForm.time[0]);
+      let endTime = dateToUnixTime(this.setupForm.time[1]);
+      this.setupForm.pkSet = this.participants.map(
+        item => {
+          return this.pkSet[this.idSet.indexOf(item)]
+        }
+      )
+      const address = await publish(
+        this.setupForm.pkSet,
+        startTime,
+        endTime
+      );
+      this.setupForm.idSet = this.participants
+      this.setupForm.address = address;
+      this.setupForm.startTime = this.setupForm.time[0];
+      this.setupForm.endTime = this.setupForm.time[1];
+      this.setupForm.time = undefined;
+      setup(this.setupForm);
+      this.loading = false;
     }
   }
-}
+};
 </script>
 
 <style scoped>

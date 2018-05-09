@@ -9,7 +9,7 @@ var UserSchema = new Schema({
   emailAddress: String,
   avatar: String,
   pk: String,
-  evaluation: Array,
+  evaluations: Array,
   role: String
 })
 

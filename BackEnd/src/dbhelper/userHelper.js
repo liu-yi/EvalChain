@@ -9,16 +9,8 @@ userHelper.findById = async (id) => {
 }
 
 userHelper.findAllUser = async () => {
-  var query = User.find({})
-  var res = []
-  await query.exec(function (err, users) {
-    if (err) {
-      res = []
-    } else {
-      res = users
-    }
-  })
-  return res
+  let users = await User.find({})
+  return users
 }
 
 userHelper.addUser = async (user) => {
@@ -52,6 +44,14 @@ userHelper.canSignup = async (id) => {
     flag = false
   }
   return flag
+}
+
+userHelper.addEvaluation = async (id, address) => {
+  await User.update({id}, {
+    $push: {
+      evaluations: address
+    }
+  })
 }
 
 export default userHelper

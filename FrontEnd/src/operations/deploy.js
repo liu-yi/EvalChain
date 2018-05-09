@@ -2,7 +2,9 @@ import Web3 from 'web3'
 import { compiledContractDefinition } from '@/contracts/Evaluating'
 import BN from 'bn.js'
 
-var web3
+let web3
+
+const from = '0x3e384a5eFe7bB75BBFC921e53faDa0524E1E2dda'
 
 if (typeof web3 !== 'undefined') {
   web3 = new Web3(web3.currentProvider)
@@ -10,14 +12,12 @@ if (typeof web3 !== 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'))
 }
 
-var from = web3.eth.accounts[0]
+const abi = compiledContractDefinition['contracts']['Evaluating']['abi']
+const bin = compiledContractDefinition['contracts']['Evaluating']['bin']
 
-var abi = compiledContractDefinition['contracts']['Evaluating']['abi']
-var bin = compiledContractDefinition['contracts']['Evaluating']['bin']
+const CONTRACT = {}
 
-var CONTRACT = {}
-
-export function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
+export async function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
   CONTRACT.publicKeys = _publicKeys.map(
     (item) => {
       return [
@@ -27,59 +27,37 @@ export function publish(_publicKeys, _evaluatingStartTime, _evaluatingEndTime) {
     }
   )
   CONTRACT.publicKeys = [].concat.apply([], CONTRACT.publicKeys)
-
   CONTRACT.evaluatingStartTime = _evaluatingStartTime
   CONTRACT.evaluatingEndTime = _evaluatingEndTime
-  deployContract(abi, bin, from, publishEvaluation)
-}
 
-function deployContract(contractAbi, contractBin, account, deployCallBack) {
-  var contractClass = new web3.eth.Contract(contractAbi)
+  const contractClass = new web3.eth.Contract(abi)
 
-  return contractClass.deploy({
-    data: contractBin
+  const contract = await contractClass.deploy({
+    data: bin
   }).send({
-    from: '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9',
+    from,
     gas: 5200000
-  }).then(deployCallBack)
-}
+  })
 
-function publishEvaluation(contract) {
   console.log('contract deploy address: ' + contract.options.address)
   CONTRACT.address = contract.options.address
   CONTRACT.contract = contract
-  finishSetup()
-}
 
-function finishSetup() {
-  CONTRACT.contract.methods.finishSetUp(
+  const testFinishSetup = await CONTRACT.contract.methods.finishSetUp(
     CONTRACT.publicKeys,
     CONTRACT.evaluatingStartTime,
     CONTRACT.evaluatingEndTime
-  ).call(
-    {
-      from: '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9'
-    }
-  ).then(
-    function(result) {
-      if (result) {
-        CONTRACT.contract.methods.finishSetUp(
-          CONTRACT.publicKeys,
-          CONTRACT.evaluatingStartTime,
-          CONTRACT.evaluatingEndTime
-        ).send(
-          {
-            from: '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9',
-            gas: 4200000
-          }
-        ).then(
-          function(receipt) {
-            console.log(receipt)
-          }
-        )
-      } else {
-        throw new Error('wrong parameters!')
-      }
-    }
-  )
+  ).call({ from })
+
+  if (testFinishSetup) {
+    const receipt = await CONTRACT.contract.methods.finishSetUp(
+      CONTRACT.publicKeys,
+      CONTRACT.evaluatingStartTime,
+      CONTRACT.evaluatingEndTime
+    ).send({ from, gas: 4200000 })
+    console.log(receipt)
+    return CONTRACT.address
+  } else {
+    throw new Error('Fail to set up!')
+  }
 }

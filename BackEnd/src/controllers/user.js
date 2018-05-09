@@ -15,9 +15,43 @@ export let Put = async (ctx, next) => {
 }
 
 export let Get = async (ctx, next) => {
-  var token = ctx.query.token
+  if (ctx.query.token) {
+    await GetInfo(ctx)
+    next()
+  } else if (ctx.params.id === undefined) {
+    await GetAll(ctx)
+    next()
+  } else {
+    await GetOne(ctx)
+    next()
+  }
+}
+
+export let Delete = async (ctx, next) => {
+
+}
+
+let GetOne = async (ctx) => {
+  let id = ctx.params.id
+  let user = await userHelper.findById(id)
+  ctx.body = {
+    code: 20000,
+    data: user
+  }
+}
+
+let GetAll = async (ctx) => {
+  let users = await userHelper.findAllUser()
+  ctx.body = {
+    code: 20000,
+    data: users
+  }
+}
+
+let GetInfo = async (ctx) => {
+  let token = ctx.query.token
   let id = jwt.verify(token, publicKey).id
-  var user = await userHelper.findById(id)
+  let user = await userHelper.findById(id)
   ctx.body = {
     code: 20000,
     data: {
@@ -26,8 +60,4 @@ export let Get = async (ctx, next) => {
       avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
     }
   }
-}
-
-export let Delete = async (ctx, next) => {
-
 }

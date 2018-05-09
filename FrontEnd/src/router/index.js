@@ -23,7 +23,6 @@ import Layout from '../views/layout/Layout'
 **/
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
-  { path: '/signup', component: () => import('@/views/signup/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
   {
     path: '/',
@@ -38,18 +37,6 @@ export const constantRouterMap = [
       name: 'Home',
       meta: { title: 'Home', icon: 'user' },
       component: () => import('@/views/home/index')
-    }]
-  },
-
-  {
-    path: '/setup',
-    component: Layout,
-    hidden: true,
-    children: [{
-      path: 'index',
-      name: 'Setup',
-      meta: { title: 'Setup', icon: 'user' },
-      component: () => import('@/views/setup/index')
     }]
   },
 
@@ -91,9 +78,21 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/setup',
+    component: Layout,
+    hidden: false,
+    children: [{
+      path: '',
+      name: 'Setup',
+      meta: { title: 'Setup', icon: 'user' },
+      component: () => import('@/views/setup/index')
+    }]
+  },
+
+  {
     path: '/courses',
     component: Layout,
-    redirect: '/courses/unfinished',
+    redirect: '/courses/ongoing',
     name: 'Courses',
     meta: { title: 'Courses', icon: 'example' },
     children: [
@@ -115,6 +114,7 @@ export const constantRouterMap = [
   {
     path: '/help',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -128,6 +128,7 @@ export const constantRouterMap = [
   {
     path: '/example',
     component: Layout,
+    hidden: true,
     redirect: '/example/table',
     name: 'Example',
     meta: { title: 'Example', icon: 'example' },
@@ -150,6 +151,7 @@ export const constantRouterMap = [
   {
     path: '/form',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',

@@ -1,24 +1,16 @@
 import Evaluation from '../models/evaluation'
 import xss from 'xss'
 
-var evaluationHelper = {}
+let evaluationHelper = {}
 
 evaluationHelper.findByAddress = async (address) => {
-  var query = Evaluation.find({address})
-  var res = null
-  await query.exec(function (err, evaluation) {
-    if (err) {
-      res = {}
-    } else {
-      res = evaluation
-    }
-  })
-  return res
+  let evaluation = await Evaluation.findOne({address})
+  return evaluation
 }
 
 evaluationHelper.findAllEvaluations = async () => {
-  var query = Evaluation.find({})
-  var res = []
+  let query = Evaluation.find({})
+  let res = []
   await query.exec(function (err, evaluations) {
     if (err) {
       res = []
@@ -36,16 +28,17 @@ evaluationHelper.addEvaluation = async (evaluation) => {
     instructor: xss(evaluation.instructor),
     avatar: xss(evaluation.avatar),
     startTime: evaluation.startTime,
-    endTimeL: evaluation.endTime,
-    isEnd: false,
-    participants: evaluation.participants
+    endTime: evaluation.endTime,
+    isEnd: Date.now() > evaluation.endTime,
+    pkSet: evaluation.pkSet,
+    idSet: evaluation.idSet
   })
   evaluation = await evaluation.save()
   return evaluation
 }
 
 evaluationHelper.deleteEvaluation = async (evaluation) => {
-  var flag = false
+  let flag = false
   await Evaluation.remove({evaluation}, function (err) {
     if (err) {
       flag = false
@@ -55,6 +48,14 @@ evaluationHelper.deleteEvaluation = async (evaluation) => {
   })
 
   return flag
+}
+
+evaluationHelper.setEnd = async (address) => {
+  await Evaluation.update({address}, {
+    $set: {
+      isEnd: true
+    }
+  })
 }
 
 export default evaluationHelper

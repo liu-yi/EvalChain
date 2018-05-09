@@ -8,8 +8,8 @@ import xss from 'xss'
 const secret = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 
 export let Login = async (ctx, next) => {
-  var username = xss(ctx.request.body.username.trim())
-  var password = ctx.request.body.password
+  let username = xss(ctx.request.body.id.trim())
+  let password = ctx.request.body.password
   const loginInfo = {
     id: username,
     password
@@ -38,11 +38,11 @@ export let Login = async (ctx, next) => {
 }
 
 export let Signup = async (ctx, next) => {
-  var id = xss(ctx.request.body.id.trim())
+  let id = xss(ctx.request.body.id.trim())
   console.log(ctx.request.body)
-  var canSignup = await loginHelper.canSignup(id)
+  let canSignup = await loginHelper.canSignup(id)
   if (canSignup) {
-    var user = ctx.request.body
+    let user = ctx.request.body
     try {
       await loginHelper.addUser(user)
       await userHelper.addUser(user)
@@ -61,5 +61,12 @@ export let Signup = async (ctx, next) => {
       success: false,
       message: 'The id is existed'
     }
+  }
+}
+
+export let Logout = async (ctx, next) => {
+  ctx.body = {
+    code: 20000,
+    data: 'success'
   }
 }
