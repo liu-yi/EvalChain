@@ -3,6 +3,7 @@ import userHelper from '../dbhelper/userHelper'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import path from 'path'
+import loginHelper from '../dbhelper/loginHelper'
 
 const publicKey = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 
@@ -52,12 +53,14 @@ let GetInfo = async (ctx) => {
   let token = ctx.query.token
   let id = jwt.verify(token, publicKey).id
   let user = await userHelper.findById(id)
+  let sk = await loginHelper.findForSk(id)
   ctx.body = {
     code: 20000,
     data: {
       roles: user.role,
       name: user.name,
-      avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
+      avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+      sk
     }
   }
 }

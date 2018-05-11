@@ -8,19 +8,6 @@ evaluationHelper.findByAddress = async (address) => {
   return evaluation
 }
 
-evaluationHelper.findAllEvaluations = async () => {
-  let query = Evaluation.find({})
-  let res = []
-  await query.exec(function (err, evaluations) {
-    if (err) {
-      res = []
-    } else {
-      res = evaluations
-    }
-  })
-  return res
-}
-
 evaluationHelper.addEvaluation = async (evaluation) => {
   evaluation = new Evaluation({
     address: xss(evaluation.address),
@@ -54,6 +41,14 @@ evaluationHelper.setEnd = async (address) => {
   await Evaluation.update({address}, {
     $set: {
       isEnd: true
+    }
+  })
+}
+
+evaluationHelper.addComment = async (address, comment) => {
+  await Evaluation.update({address}, {
+    $push: {
+      comments: comment
     }
   })
 }

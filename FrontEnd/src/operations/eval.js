@@ -11,11 +11,11 @@ if (typeof web3 !== 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'))
 }
 
-var from = '0xd0D6131360695fD4679484eC988ABf9fDdBF7AC9'
+var from = '0x3e384a5eFe7bB75BBFC921e53faDa0524E1E2dda'
 
 var EVAL = {}
 
-export function publishEval(contract, M, _pubKeys, sign) {
+export async function publishEval(contract, M, _pubKeys, sign) {
   EVAL.contract = contract
   EVAL.evalChoice = new BN(M.evalChoice.toString())
   EVAL.evalComment = M.evalComment
@@ -39,40 +39,36 @@ export function publishEval(contract, M, _pubKeys, sign) {
     new BN(sign.link.toString().split(',')[1].slice(0, -1))
   ]
 
-  EVAL.contract.methods.Evaluate(
+  const res = await EVAL.contract.methods.Evaluate(
     EVAL.evalChoice,
     EVAL.evalComment,
     EVAL.pubKeys,
     EVAL.c_0,
     EVAL.s,
     EVAL.link
-  ).call().then(
-    (res) => {
-      console.log(res)
-      if (res) {
-        EVAL.contract.methods.Evaluate(
-          EVAL.evalChoice,
-          EVAL.evalComment,
-          EVAL.pubKeys,
-          EVAL.c_0,
-          EVAL.s,
-          EVAL.link
-        ).send(
-          { from: from, gas: 9000000 }
-        ).then(
-          (res) => {
-            console.log(res)
-          }
-        )
-      } else {
-        console.log('wrong signature')
-      }
-    }
-  )
+  ).call()
+
+  console.log(res)
+  if (res) {
+    const tx = await EVAL.contract.methods.Evaluate(
+      EVAL.evalChoice,
+      EVAL.evalComment,
+      EVAL.pubKeys,
+      EVAL.c_0,
+      EVAL.s,
+      EVAL.link
+    ).send(
+      { from: from, gas: 9000000 }
+    )
+    console.log(tx)
+    return true
+  } else {
+    return false
+  }
 }
 
 export function generateSignAndPublish(evaluation, M, signingKey) {
   var [sign, pubKeys] = ringSign(signingKey, M, evaluation.evaluators)
 
-  publishEval(evaluation.contract, M, pubKeys, sign)
+  return publishEval(evaluation.contract, M, pubKeys, sign)
 }

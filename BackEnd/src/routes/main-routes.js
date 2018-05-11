@@ -19,6 +19,7 @@ router
   .post('/api/evaluations', controllers.evaluation.Post)
   .get('/api/evaluations/', controllers.evaluation.Get)
   .get('/api/evaluations/:address', controllers.evaluation.Get)
+  .post('/api/evaluations/:address', controllers.evaluation.Post)
   .get('/api/users/:id', controllers.user.Get)
   .get('/api/users', controllers.user.Get)
   // .get('/api/:name', controllers.api.Get)

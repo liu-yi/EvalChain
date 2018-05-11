@@ -324,7 +324,7 @@ export function verifyRingSignature(message, y, c_0, s, link, old_y) {
 
 function obtainDigest(M) {
   return BigInteger.fromHex(web3Utils.soliditySha3(new BN(M.evalChoice.toString())).substring(2)).xor(
-    BigInteger.fromHex(web3Utils.keccak256(M.evalComment).substring(2))
+    BigInteger.fromHex(web3Utils.soliditySha3(new BN(M.evalComment.toString())).substring(2))
   )
 }
 

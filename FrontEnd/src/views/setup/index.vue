@@ -40,10 +40,10 @@
 </template>
 
 <script>
-import { dateToUnixTime } from "@/utils/time";
-import { publish } from "@/operations/deploy";
-import generateKeyPair from "@/operations/generateKeyPair";
-import { getAll, setup } from "@/api/setup";
+import { dateToUnixTime } from '@/utils/time'
+import { publish } from '@/operations/deploy'
+import generateKeyPair from '@/operations/generateKeyPair'
+import { getAll, setup } from '@/api/setup'
 
 export default {
   data() {
@@ -55,74 +55,77 @@ export default {
           <span>
             {option.id} {option.label}
           </span>
-        );
+        )
       },
       setupForm: {
-        name: "Fall 2018 CS101 Discrete Mathematics",
-        instructor: "王琦",
-        time: "",
+        name: 'Fall 2018 CS101 Discrete Mathematics',
+        instructor: '王琦',
+        time: ''
       },
       participants: [], // 被选中的参与评教的人
       setupRules: {
-        name: [{ required: true, trigger: "blur" }],
-        time: [{ required: true, trigger: "blur" }],
-        instructor: [{ required: true, trigger: "blur" }]
+        name: [{ required: true, trigger: 'blur' }],
+        time: [{ required: true, trigger: 'blur' }],
+        instructor: [{ required: true, trigger: 'blur' }]
       },
       transferData: [],
       loading: false,
       pkSet: [],
       idSet: []
-    };
+    }
   },
   computed: {
     isCompleted: function() {
-      let flag = true;
+      let flag = true
       for (const item in this.setupForm) {
         if (this.setupForm[item] !== undefined) {
           if (this.setupForm[item].length === 0) {
-            flag = false;
+            flag = false
           }
         }
       }
-      return flag;
+      return flag
     }
   },
   async created() {
-    let res = await getAll();
+    const res = await getAll()
     res.data.forEach(element => {
-      let item = {};
+      const item = {}
       item.key = element.id
-      item.label = element.name;
-      this.transferData.push(item);
+      item.label = element.name
+      this.transferData.push(item)
       this.pkSet.push(element.pk)
       this.idSet.push(element.id)
-    });
+    })
   },
   methods: {
     async onPublish() {
-      this.loading = true;
-      let startTime = dateToUnixTime(this.setupForm.time[0]);
-      let endTime = dateToUnixTime(this.setupForm.time[1]);
-      this.setupForm.pkSet = this.participants.map(
-        item => {
-          return this.pkSet[this.idSet.indexOf(item)]
-        }
-      )
-      const address = await publish(
-        this.setupForm.pkSet,
-        startTime,
-        endTime
-      );
+      this.loading = true
+      const startTime = dateToUnixTime(this.setupForm.time[0])
+      const endTime = dateToUnixTime(this.setupForm.time[1])
+      this.setupForm.pkSet = this.participants.map(item => {
+        return this.pkSet[this.idSet.indexOf(item)]
+      })
+      const address = await publish(this.setupForm.pkSet, startTime, endTime)
       this.setupForm.idSet = this.participants
-      this.setupForm.address = address;
-      this.setupForm.startTime = this.setupForm.time[0];
-      this.setupForm.endTime = this.setupForm.time[1];
-      this.setupForm.time = undefined;
-      setup(this.setupForm);
-      this.loading = false;
+      this.setupForm.address = address
+      this.setupForm.startTime = this.setupForm.time[0]
+      this.setupForm.endTime = this.setupForm.time[1]
+      this.setupForm.time = undefined
+      setup(this.setupForm)
+      this.loading = false
+      this.$alert('The address of the evalutation is ' + this.setupForm.address + '.', 'Deploy Successfully!', {
+        confirmButtonText: 'Ok',
+        callback: action => {
+          this.$message({
+            type: 'info',
+            message: `action: ${action}`
+          })
+        }
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped>

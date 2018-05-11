@@ -21,7 +21,8 @@ var EvaluationSchema = new Schema({
       type: Date,
       default: Date.now()
     }
-  }
+  },
+  comments: Array
 })
 
 EvaluationSchema.pre('save', function (next) {

@@ -53,13 +53,13 @@ contract Evaluating is owned{
     /****************************************/
     mapping(bytes32 => bool) public registeredEvalLink;
     uint256[] public evalChoices;
-    string[] public evalComments;
+    uint256[] public evalComments;
 
     function getEvalChoices() public returns (uint256[]) {
         return evalChoices;
     }
 
-    function getEvalComments() public returns (string[]) {
+    function getEvalComments() public returns (uint256[]) {
         return evalComments;
     }
     /****************************************
@@ -129,7 +129,7 @@ contract Evaluating is owned{
 
     function Evaluate(
         uint256 evalChoice,
-        string evalComment,
+        uint256 evalComment,
         uint256[] pubKeys,
         uint256 c_0,
         uint256[] s,

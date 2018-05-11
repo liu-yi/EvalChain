@@ -51,7 +51,7 @@
                       </el-form-item>
                       <el-form-item label="" prop="pk">
                         <el-input v-model="signupForm.pk" class="pkInput"></el-input>
-                        <el-button type="success" class="pkButton" @click.native.prevent="handleGenerate">Generate Public Key</el-button>
+                        <el-button type="success" class="pkButton" @click.native.prevent="handleGenerate" :disabled="signupForm.password === ''">Generate Public Key</el-button>
                       </el-form-item>
                       <el-form-item label="" v-show="showKeyPairMessage">
                         <el-alert title="Success! Your private key is in the following." type="success" center show-icon>
@@ -82,161 +82,176 @@
 </template>
 
 <script>
-import logo from "@/assets/logo.png";
-import { isvalidUsername, validateId } from "@/utils/validate";
-import { signup } from "@/api/login";
-import generateKeyPair from "@/operations/generateKeyPair";
+import logo from '@/assets/logo.png'
+import { validateId } from '@/utils/validate'
+import { signup } from '@/api/login'
+import generateKeyPair from '@/operations/generateKeyPair'
+import crypto from 'crypto'
 
 export default {
-  name: "login",
+  name: 'login',
   data() {
     const validatePk = (rule, value, callback) => {
-      console.log(value);
       if (/^\([0-9]+,[0-9]+\)$/.test(value)) {
-        callback();
+        callback()
       } else {
-        callback(new Error("Wrong Public Key"));
+        callback(new Error('Wrong Public Key'))
       }
-    };
+    }
     const validateName = (rule, value, callback) => {
       if (/^[\u4e00-\u9fa5]{2,4}$/.test(value)) {
-        callback();
+        callback()
       } else {
-        callback(new Error("Please use a Chinese Name"));
+        callback(new Error('Please use a Chinese Name'))
       }
-    };
+    }
     const validateSignupId = (rule, value, callback) => {
       if (validateId(value)) {
-        callback();
+        callback()
       } else {
-        callback(new Error("ID must be 8 digital"));
+        callback(new Error('ID must be 8 digital'))
       }
-    };
-    const validateCheckPassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("Please input the password again!"));
-      } else if (value !== this.signupForm.password) {
-        callback(new Error("The password is different from the password!"));
-      } else {
-        callback();
-      }
-    };
+    }
     const validateLoginId = (rule, value, callback) => {
       if (/^[A-Za-z0-9]+$/.test(value)) {
-        callback();
+        callback()
       } else {
-        callback(new Error("请输入正确的用户名"));
+        callback(new Error('请输入正确的用户名'))
       }
-    };
+    }
     const validatePass = (rule, value, callback) => {
       if (value.length < 5) {
-        callback(new Error("密码不能小于5位"));
+        callback(new Error('密码不能小于5位'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       activeName: 'login',
       signupForm: {
-        id: "11410601",
-        password: "8270614",
-        name: "刘逸"
+        id: '11410601',
+        password: '8270614',
+        name: '刘逸',
+        encryptedSk: null
       },
       loginForm: {
-        id: "11410601",
-        password: "8270614"
+        id: '11410601',
+        password: '8270614'
       },
       loginRules: {
-        id: [{ required: true, trigger: "blur", validator: validateLoginId }],
-        password: [{ required: true, trigger: "blur", validator: validatePass }]
+        id: [{ required: true, trigger: 'blur', validator: validateLoginId }],
+        password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
       signupRules: {
-        id: [{ required: true, trigger: "blur", validator: validateSignupId }],
+        id: [{ required: true, trigger: 'blur', validator: validateSignupId }],
         password: [
-          { required: true, trigger: "blur", validator: validatePass }
+          { required: true, trigger: 'blur', validator: validatePass }
         ],
         name: [
           {
             required: true,
             validator: validateName,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         pk: [
           {
             require: true,
-            trigger: "change",
+            trigger: 'change',
             validator: validatePk
           }
         ]
       },
       loading: false,
-      pwdType: "password",
+      pwdType: 'password',
       logo,
       sk: undefined,
       showKeyPairMessage: false
-    };
+    }
+  },
+  watch: {
+    'signupForm.password': function(oldPass, newPass) {
+      this.signupForm.pk = ''
+      this.sk = ''
+      this.showKeyPairMessage = false
+    }
   },
   methods: {
+    aesEncrypt(data, key) {
+      const cipher = crypto.createCipher('aes192', key)
+      let crypted = cipher.update(data, 'utf8', 'hex')
+      crypted += cipher.final('hex')
+      return crypted
+    },
+    aesDecrypt(encrypted, key) {
+      const decipher = crypto.createDecipher('aes192', key)
+      let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+      decrypted += decipher.final('utf8')
+      return decrypted
+    },
     showPwd() {
-      if (this.pwdType === "password") {
-        this.pwdType = "";
+      if (this.pwdType === 'password') {
+        this.pwdType = ''
       } else {
-        this.pwdType = "password";
+        this.pwdType = 'password'
       }
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true;
+          this.loading = true
           this.$store
-            .dispatch("Login", this.loginForm)
+            .dispatch('Login', this.loginForm)
             .then(() => {
-              this.loading = false;
-              this.$router.push({ path: "/" });
+              this.loading = false
+              this.$router.push({ path: '/' })
             })
             .catch(() => {
-              this.loading = false;
-            });
+              this.loading = false
+            })
         } else {
-          console.log("error submit!!");
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
 
     handleSignup() {
       this.$refs.signupForm.validate(valid => {
         if (valid) {
-          this.loading = true;
+          this.loading = true
           signup(this.signupForm)
             .then(() => {
-              this.loading = false;
+              this.loading = false
               this.$message({
-                message: "Congratulation! Sign up successfully!",
-                type: "success"
-              });
+                message: 'Congratulation! Sign up successfully!',
+                type: 'success'
+              })
               this.activeName = 'login'
               this.loginForm.id = this.signupForm.id
               this.loginForm.password = ''
             })
             .catch(() => {
-              this.loading = false;
-            });
+              this.loading = false
+            })
         } else {
-          console.log("error submit sign up!!");
-          return false;
+          console.log('error submit sign up!!')
+          return false
         }
-      });
+      })
     },
 
     handleGenerate() {
-      let keyPair = generateKeyPair();
-      this.signupForm.pk = keyPair.pk.toString();
-      (this.sk = keyPair.sk.toString()), (this.showKeyPairMessage = true);
+      const keyPair = generateKeyPair()
+      this.signupForm.pk = keyPair.pk.toString()
+      this.sk = keyPair.sk.toString()
+      this.showKeyPairMessage = true
+      this.signupForm.encryptedSk = this.aesEncrypt(this.sk, this.signupForm.password)
+      console.log(this.signupForm.encryptedSk)
+      console.log(this.aesDecrypt(this.signupForm.encryptedSk, this.signupForm.password))
     }
   }
-};
+}
 </script>
 
 

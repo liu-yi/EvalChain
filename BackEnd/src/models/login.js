@@ -7,6 +7,7 @@ var LoginSchema = new Schema({
   password: String,
   role: String,
   pk: String,
+  encryptedSk: String,
   verifyCode: String,
   verified: {
     type: Boolean,

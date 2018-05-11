@@ -8,6 +8,37 @@ import userHelper from '../dbhelper/userHelper'
 const secret = fs.readFileSync(path.join(__dirname, '../../publicKey.pub'))
 
 export let Post = async (ctx, next) => {
+  if (ctx.params.address === undefined) {
+    await deploy(ctx)
+    next()
+  } else {
+    await postComment(ctx)
+    next()
+  }
+}
+
+let postComment = async (ctx) => {
+  let comment = ctx.request.body.comment
+  let address = ctx.request.body.address
+  // ctx.body = {
+  //   code: 20000,
+  //   success: true
+  // }
+  try {
+    await evaluationHelper.addComment(address, comment)
+    ctx.body = {
+      code: 20000,
+      success: true
+    }
+  } catch (e) {
+    ctx.body = {
+      success: false,
+      message: 'fail to add comment'
+    }
+  }
+}
+
+let deploy = async (ctx) => {
   let token = ctx.request.header.authorization
   let userToken = await jwt.verify(token.substr(7), secret)
   console.log(userToken)
@@ -66,17 +97,14 @@ let GetForUser = async (ctx, isEnd) => {
   let id = userToken.id
   let user = await userHelper.findById(id)
   let address = user.evaluations
-  console.log(address)
   let evaluations = []
   for (let i = 0; i < address.length; i++) {
     let evaluation = await evaluationHelper.findByAddress(address[i])
     if (!evaluation.isEnd && evaluation.endTime < new Date()) {
       console.log('hahasdf')
       await evaluationHelper.setEnd(address[i])
+      evaluation.isEnd = true
     }
-    console.log(evaluation.endTime)
-    console.log(new Date())
-    console.log(evaluation)
 
     if (isEnd && evaluation.isEnd) {
       evaluations.push(

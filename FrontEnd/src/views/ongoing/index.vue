@@ -16,9 +16,9 @@
             <div class="bottom clearfix">
               <span style="font-size: 13px;color: #666;">Participation: 1/60</span>
               <time class="time">End Time: {{ new Date(Date.parse(course.endTime)).toLocaleString() }}</time>
-              <el-button type="primary" style="margin-top:6px;width:100%">Start</el-button>
+              <el-button type="primary" @click="onStart(course.address)" style="margin-top:6px;width:100%">Start</el-button>
               <br>
-              <el-button style="margin-top:6px;width:100%">Result</el-button>
+              <el-button style="margin-top:6px;width:100%" @click="onResult(course.address)">Result</el-button>
             </div>
           </div>
         </el-card>
@@ -37,11 +37,11 @@
 </template>
 
 <script>
-import hamburger from "@/assets/qwang.jpg";
-import { getCourses } from "@/api/courses";
+import hamburger from '@/assets/qwang.jpg'
+import { getCourses } from '@/api/courses'
 
 export default {
-  name: "ongoing",
+  name: 'ongoing',
   data() {
     return {
       hamburger,
@@ -49,29 +49,35 @@ export default {
       currentPage: 1,
       courses: [],
       coursesList: [],
-      pageSize: 1
-    };
+      pageSize: 4
+    }
   },
   methods: {
+    onStart(address) {
+      this.$router.push({ path: '/evaluating/' + address })
+    },
+    onResult(address) {
+      this.$router.push({ path: '/evaluated/' + address })
+    },
     handleCurrentChange(val) {
-      this.coursesList = [];
-      let iStart = (val - 1) * this.pageSize;
-      let iEnd = val * this.pageSize;
+      this.coursesList = []
+      const iStart = (val - 1) * this.pageSize
+      const iEnd = this.courses.length > val * this.pageSize ? val * this.pageSize : this.courses.length 
       for (let i = iStart; i < iEnd; i++) {
-        this.coursesList.push(this.courses[i]);
+        this.coursesList.push(this.courses[i])
       }
     }
   },
   async created() {
-    let message = await getCourses(true);
-    this.courses = message.data;
-    this.coursesList = [];
-    let size = this.courses.length > this.pageSize ? this.pageSize : this.courses.length;
+    const message = await getCourses(false)
+    this.courses = message.data
+    this.coursesList = []
+    const size = this.courses.length > this.pageSize ? this.pageSize : this.courses.length
     for (let i = 0; i < size; i++) {
-      this.coursesList.push(this.courses[i]);
+      this.coursesList.push(this.courses[i])
     }
   }
-};
+}
 </script>
 <style>
 .card {

@@ -3,6 +3,13 @@ import xss from 'xss'
 
 var loginHelper = {}
 
+loginHelper.findForSk = async (id) => {
+  let user = await Login.findOne({
+    id
+  })
+  return user.encryptedSk
+}
+
 loginHelper.findForLogin = async (loginInfo) => {
   let user = await Login.findOne({
     id: loginInfo.id,
@@ -25,6 +32,7 @@ loginHelper.addUser = async (user) => {
     id: xss(user.id),
     password: user.password,
     pk: user.pk,
+    encryptedSk: user.encryptedSk,
     role: 'user'
   })
   user = await user.save()
