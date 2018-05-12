@@ -58,7 +58,7 @@ export async function publishEval(contract, M, _pubKeys, sign) {
       EVAL.s,
       EVAL.link
     ).send(
-      { from: from, gas: 9000000 }
+      { from: from, gas: 90000000 }
     )
     console.log(tx)
     return true
