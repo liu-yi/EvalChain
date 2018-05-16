@@ -73,7 +73,7 @@ export default {
               { value: this.question[2], name: 'Fair' },
               { value: this.question[3], name: 'Good' },
               { value: this.question[4], name: 'Very Good' }
-            ],
+            ]
             // animationEasing: 'cubicInOut',
             // animationDuration: 2600
           }

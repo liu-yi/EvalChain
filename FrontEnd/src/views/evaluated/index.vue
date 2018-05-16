@@ -36,12 +36,12 @@
 </template>
 
 <script>
-import { generateSignAndPublish } from "@/operations/eval";
-import EVALUATION from "@/operations/info";
-import { getEvaluation, postComment } from "@/api/evaluating";
-import BigInteger from "bigi";
-import web3Utils from "web3-utils";
-import PieChart from "./components/PieChart";
+import { generateSignAndPublish } from '@/operations/eval'
+import EVALUATION from '@/operations/info'
+import { getEvaluation, postComment } from '@/api/evaluating'
+import BigInteger from 'bigi'
+import web3Utils from 'web3-utils'
+import PieChart from './components/PieChart'
 
 export default {
   components: {
@@ -50,76 +50,76 @@ export default {
   data() {
     return {
       evalForm: {
-        name: "",
-        instructor: "",
+        name: '',
+        instructor: '',
         items: [
           {
-            question: "你对这门课程教学的总体感受是",
-            type: "score",
+            question: '你对这门课程教学的总体感受是',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "备课认真充分,熟悉授课内容",
-            type: "score",
+            question: '备课认真充分,熟悉授课内容',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "课堂讲解清晰有条理、循序渐进",
-            type: "score",
+            question: '课堂讲解清晰有条理、循序渐进',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "讲授的知识内容丰富, 能反映知识前沿",
-            type: "score",
+            question: '讲授的知识内容丰富, 能反映知识前沿',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "教学方法多样灵活，激发学生兴趣",
-            type: "score",
+            question: '教学方法多样灵活，激发学生兴趣',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "能够根据学生的理解水平有效调节授课进度",
-            type: "score",
+            question: '能够根据学生的理解水平有效调节授课进度',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "能够适时引导讨论问题, 形成课堂互动, 激发学生思考",
-            type: "score",
+            question: '能够适时引导讨论问题, 形成课堂互动, 激发学生思考',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "能够注意给予学生学习方法的指导",
-            type: "score",
+            question: '能够注意给予学生学习方法的指导',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "能够及时批改、发放作业, 给予建设性的评价",
-            type: "score",
+            question: '能够及时批改、发放作业, 给予建设性的评价',
+            type: 'score',
             required: true,
             content: 5
           },
           {
-            question: "我从这门课程里收获非常大",
-            type: "score",
+            question: '我从这门课程里收获非常大',
+            type: 'score',
             required: true,
             content: 5
           },
           {
             question:
-              "本课程哪些方面最吸引你？ 本课程哪些方面最需要改进？ 你对本课程还有其它愿意反馈的学习感受和需求吗？",
-            type: "comment",
+              '本课程哪些方面最吸引你？ 本课程哪些方面最需要改进？ 你对本课程还有其它愿意反馈的学习感受和需求吗？',
+            type: 'comment',
             lengthLimit: 200,
             required: true,
-            content: "good"
+            content: 'good'
           }
         ],
         M: [],
@@ -128,41 +128,41 @@ export default {
       evaluation: null,
       contractAddress: this.$route.params.address,
       signingKey:
-        "17252880535835771401589099178720159186817276817443408064371641569237760237916"
-    };
+        '17252880535835771401589099178720159186817276817443408064371641569237760237916'
+    }
   },
   watch: {},
   async created() {
     try {
-      this.evaluation = await new EVALUATION(this.contractAddress);
+      this.evaluation = await new EVALUATION(this.contractAddress)
     } catch (e) {
-      this.$alert("The address is not exist.", "Fail Access", {
-        confirmButtonText: "Ok",
-        callback: action => {          
+      this.$alert('The address is not exist.', 'Fail Access', {
+        confirmButtonText: 'Ok',
+        callback: action => {
         //   window.history.length > 1
         // ? this.$router.go(-1)
         // : this.$router.push('/')
-        this.$router.go(-1)
+          this.$router.go(-1)
         }
-      });
+      })
     }
     try {
-      1/this.evaluation.evalChoices[0].length
+      1 / this.evaluation.evalChoices[0].length
     } catch (e) {
-      await this.$alert("No evaluation is published.", "Fail Obtain Result", {
-        confirmButtonText: "Ok",
+      await this.$alert('No evaluation is published.', 'Fail Obtain Result', {
+        confirmButtonText: 'Ok',
         callback: action => {
           // this.$router.push({ path: "/" });
-        this.$router.go(-1)
+          this.$router.go(-1)
         }
-      });
+      })
     }
     for (let i = 0; i < this.evaluation.evalChoices[0].length; i++) {
-      this.evalForm.result[i] = [0, 0, 0, 0, 0, 0];
+      this.evalForm.result[i] = [0, 0, 0, 0, 0, 0]
       for (let j = 0; j < this.evaluation.evalChoices.length; j++) {
         this.evalForm.result[i][
           parseInt(this.evaluation.evalChoices[j][i]) - 1
-        ]++;
+        ]++
       }
     }
 
@@ -184,78 +184,78 @@ export default {
     //       this.evalForm.result[i] = [6, 8, 20, 1, 4];
     //   }
     // }
-    const message = await getEvaluation(this.contractAddress);
-    const evaluationInfo = message.data;
-    console.log(evaluationInfo);
+    const message = await getEvaluation(this.contractAddress)
+    const evaluationInfo = message.data
+    console.log(evaluationInfo)
     console.log(this.evaluation.evalComments.length)
     console.log(evaluationInfo.comments.length)
-    for(let i = 0; i < this.evaluation.evalComments.length; i++){
-      for(let j = 0; j < evaluationInfo.comments.length; j++){
-        if(evaluationInfo.comments[j].hash === this.evaluation.evalComments[i]){
+    for (let i = 0; i < this.evaluation.evalComments.length; i++) {
+      for (let j = 0; j < evaluationInfo.comments.length; j++) {
+        if (evaluationInfo.comments[j].hash === this.evaluation.evalComments[i]) {
           this.evalForm.M.push(evaluationInfo.comments[j].detail)
-          break;
+          break
         }
       }
     }
-    this.evalForm.name = evaluationInfo.name;
-    this.evalForm.instructor = evaluationInfo.instructor;
+    this.evalForm.name = evaluationInfo.name
+    this.evalForm.instructor = evaluationInfo.instructor
   },
   computed: {
     isCompleted: function() {
-      let flag = false;
+      let flag = false
       for (const item in this.evalForm.items) {
         if (
           this.evalForm.items[item].required &&
           this.evalForm.items[item].content === null
         ) {
-          flag = true;
+          flag = true
         }
       }
-      return flag;
+      return flag
     }
   },
   methods: {
     onEval() {
-      let evalChoice = "";
-      let evalComment = {};
+      let evalChoice = ''
+      const evalComment = {}
       for (const item in this.evalForm.items) {
-        if (this.evalForm.items[item].type === "score") {
+        if (this.evalForm.items[item].type === 'score') {
           if (this.evalForm.items[item].content === null) {
-            evalChoice += "6";
+            evalChoice += '6'
           } else {
-            evalChoice += this.evalForm.items[item].content;
+            evalChoice += this.evalForm.items[item].content
           }
-        } else if (this.evalForm.items[item].type === "comment") {
-          evalComment.detail = this.evalForm.items[item].content;
+        } else if (this.evalForm.items[item].type === 'comment') {
+          evalComment.detail = this.evalForm.items[item].content
         }
       }
-      this.evalForm.M.evalChoice = evalChoice;
+      this.evalForm.M.evalChoice = evalChoice
       this.evalForm.M.evalComment = BigInteger.fromHex(
         web3Utils.keccak256(evalComment.detail).substring(2)
-      ).toString();
-      evalComment.hash = this.evalForm.M.evalComment;
+      ).toString()
+      evalComment.hash = this.evalForm.M.evalComment
       try {
         generateSignAndPublish(
           this.evaluation,
           this.evalForm.M,
           this.signingKey
-        );
-        postComment(this.contractAddress, evalComment);
+        )
+        postComment(this.contractAddress, evalComment)
       } catch (e) {
         this.$alert(
-          "You may submit a wrong signature or have evaluated.",
-          "Fail to Submit Evaluation",
+          'You may submit a wrong signature or have evaluated.',
+          'Fail to Submit Evaluation',
           {
-            confirmButtonText: "Ok",
+            confirmButtonText: 'Ok',
             callback: action => {
               // this.$router.push({ path: "/" });
             }
           }
-        );
+        )
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

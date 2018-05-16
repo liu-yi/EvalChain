@@ -42,7 +42,6 @@
 <script>
 import { dateToUnixTime } from '@/utils/time'
 import { publish } from '@/operations/deploy'
-import generateKeyPair from '@/operations/generateKeyPair'
 import { getAll, setup } from '@/api/setup'
 
 export default {
@@ -69,7 +68,6 @@ export default {
         instructor: [{ required: true, trigger: 'blur' }]
       },
       transferData: [],
-      loading: false,
       pkSet: [],
       idSet: []
     }

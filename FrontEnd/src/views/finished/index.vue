@@ -57,7 +57,7 @@ export default {
     handleCurrentChange(val) {
       this.coursesList = []
       const iStart = (val - 1) * this.pageSize
-      const iEnd = this.courses.length > val * this.pageSize ? val * this.pageSize : this.courses.length 
+      const iEnd = this.courses.length > val * this.pageSize ? val * this.pageSize : this.courses.length
       for (let i = iStart; i < iEnd; i++) {
         this.coursesList.push(this.courses[i])
       }
