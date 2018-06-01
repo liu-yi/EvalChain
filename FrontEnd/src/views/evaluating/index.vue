@@ -43,6 +43,10 @@
       <el-col :span="24" style="margin: 20px; margin-top:30px;">
         <el-button :disabled="isCompleted" type="primary" @click="onEval" :loading="loading">Submit</el-button>
       </el-col>
+      <el-col :span="24">
+        <el-progress :text-inside="true" :stroke-width="18" :percentage="percentage"></el-progress>
+
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -140,7 +144,8 @@ export default {
       sk: store.getters.sk,
       password: '',
       signingKey: '',
-      loading: false
+      loading: false,
+      percentage: 0
     }
   },
   watch: {},
@@ -224,7 +229,7 @@ export default {
           {
             confirmButtonText: 'Ok',
             callback: action => {
-              // this.$router.push({ path: "/" });
+              this.$router.go(-1)
             }
           }
         )

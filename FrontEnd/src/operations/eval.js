@@ -68,7 +68,8 @@ export async function publishEval(contract, M, _pubKeys, sign) {
 }
 
 export function generateSignAndPublish(evaluation, M, signingKey) {
+  console.log(this)
   var [sign, pubKeys] = ringSign(signingKey, M, evaluation.evaluators)
-
+  this.percentage = 30
   return publishEval(evaluation.contract, M, pubKeys, sign)
 }
