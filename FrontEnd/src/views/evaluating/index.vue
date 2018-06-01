@@ -141,7 +141,6 @@ export default {
       password: '',
       signingKey: '',
       loading: false
-
     }
   },
   watch: {},
@@ -187,6 +186,7 @@ export default {
       return decrypted
     },
     async onEval() {
+      this.loading = true
       let evalChoice = ''
       const evalComment = {}
       for (const item in this.evalForm.items) {
