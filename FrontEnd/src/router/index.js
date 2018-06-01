@@ -77,17 +77,17 @@ export const constantRouterMap = [
     ]
   },
 
-  {
-    path: '/setup',
-    component: Layout,
-    hidden: false,
-    children: [{
-      path: '',
-      name: 'Setup',
-      meta: { title: 'Setup', icon: 'user' },
-      component: () => import('@/views/setup/index')
-    }]
-  },
+  // {
+  //   path: '/setup',
+  //   component: Layout,
+  //   hidden: false,
+  //   children: [{
+  //     path: '',
+  //     name: 'Setup',
+  //     meta: { title: 'Setup', icon: 'user' },
+  //     component: () => import('@/views/setup/index')
+  //   }]
+  // },
 
   {
     path: '/courses',
@@ -160,9 +160,9 @@ export const constantRouterMap = [
         meta: { title: 'Form', icon: 'form' }
       }
     ]
-  },
+  }
 
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 export default new Router({
@@ -171,3 +171,19 @@ export default new Router({
   routes: constantRouterMap
 })
 
+export const asyncRouterMap = [
+  {
+    path: '/setup',
+    component: Layout,
+    hidden: false,
+    meta: { role: ['admin'] }, // 页面需要的权限
+    children: [{
+      path: '',
+      name: 'Setup',
+      meta: { title: 'Setup', icon: 'user' },
+      component: () => import('@/views/setup/index')
+    }]
+  },
+  { path: '*', redirect: '/404', hidden: true }
+
+]

@@ -97,15 +97,14 @@ let GetForUser = async (ctx, isEnd) => {
   let id = userToken.id
   let user = await userHelper.findById(id)
   let address = user.evaluations
+  console.log(address)
   let evaluations = []
   for (let i = 0; i < address.length; i++) {
     let evaluation = await evaluationHelper.findByAddress(address[i])
     if (!evaluation.isEnd && evaluation.endTime < new Date()) {
-      console.log('hahasdf')
       await evaluationHelper.setEnd(address[i])
       evaluation.isEnd = true
     }
-
     if (isEnd && evaluation.isEnd) {
       evaluations.push(
         {

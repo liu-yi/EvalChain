@@ -113,13 +113,7 @@ export default {
       setup(this.setupForm)
       this.loading = false
       this.$alert('The address of the evalutation is ' + this.setupForm.address + '.', 'Deploy Successfully!', {
-        confirmButtonText: 'Ok',
-        callback: action => {
-          this.$message({
-            type: 'info',
-            message: `action: ${action}`
-          })
-        }
+        confirmButtonText: 'Ok'
       })
     }
   }

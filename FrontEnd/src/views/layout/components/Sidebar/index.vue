@@ -17,7 +17,7 @@ import logo from '@/assets/logo.png'
 
 export default {
   data() {
-    return {logo};
+    return { logo }
   },
   components: { SidebarItem, ScrollBar },
   computed: {

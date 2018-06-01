@@ -50,8 +50,14 @@
                         <el-input :type="pwdType" name="username" v-model="signupForm.password" placeholder="Password" autoComplete="on"></el-input>
                       </el-form-item>
                       <el-form-item label="" prop="pk">
-                        <el-input v-model="signupForm.pk" class="pkInput"></el-input>
-                        <el-button type="success" class="pkButton" @click.native.prevent="handleGenerate" :disabled="signupForm.password === ''">Generate Public Key</el-button>
+                        <el-row :gutter="10">
+                          <el-col :span="12">
+                            <el-input v-model="signupForm.pk" class="pkInput" style="width:100%"> </el-input>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-button style="width:100%" type="success" class="pkButton" @click.native.prevent="handleGenerate" :disabled="signupForm.password === ''">Generate Public Key</el-button>
+                          </el-col>
+                        </el-row>
                       </el-form-item>
                       <el-form-item label="" v-show="showKeyPairMessage">
                         <el-alert title="Success! Your private key is in the following." type="success" center show-icon>
@@ -189,6 +195,12 @@ export default {
       decrypted += decipher.final('utf8')
       return decrypted
     },
+    sha256(message) {
+      const hash = crypto.createHash('sha256')
+      hash.update(message)
+      const h = hash.digest('hex')
+      return h.substring(0)
+    },
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -200,6 +212,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+          this.loginForm.password = this.sha256(this.loginForm.password)
           this.$store
             .dispatch('Login', this.loginForm)
             .then(() => {
@@ -220,6 +233,7 @@ export default {
       this.$refs.signupForm.validate(valid => {
         if (valid) {
           this.loading = true
+          this.signupForm.password = this.sha256(this.signupForm.password)
           signup(this.signupForm)
             .then(() => {
               this.loading = false
@@ -246,9 +260,10 @@ export default {
       this.signupForm.pk = keyPair.pk.toString()
       this.sk = keyPair.sk.toString()
       this.showKeyPairMessage = true
-      this.signupForm.encryptedSk = this.aesEncrypt(this.sk, this.signupForm.password)
-      console.log(this.signupForm.encryptedSk)
-      console.log(this.aesDecrypt(this.signupForm.encryptedSk, this.signupForm.password))
+      this.signupForm.encryptedSk = this.aesEncrypt(
+        this.sk,
+        this.signupForm.password
+      )
     }
   }
 }

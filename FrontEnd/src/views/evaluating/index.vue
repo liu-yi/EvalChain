@@ -25,7 +25,14 @@
       </el-col>
       <el-col :span="24">
         <el-card style="margin: 20px; margin-top:20px; padding: 10px;">
-          <el-input v-model="password" type="password" placeholder="Password"></el-input><el-button @click="getSk()" type="primary">Get Sk</el-button>
+          <el-row :gutter="10">
+            <el-col :span="6">
+              <el-input v-model="password" type="password" placeholder="Password"></el-input>
+            </el-col>
+            <el-col :span="6">
+              <el-button @click="getSk()" type="primary">Get Sk</el-button>
+            </el-col>
+          </el-row>
           <div style="padding: 10px"></div>
           <el-input v-model="signingKey" type="textarea" placeholder="Private Key"></el-input>
 
@@ -34,7 +41,7 @@
     </el-row>
     <el-row>
       <el-col :span="24" style="margin: 20px; margin-top:30px;">
-        <el-button :disabled="isCompleted" type="primary" @click="onEval">Submit Directly</el-button>
+        <el-button :disabled="isCompleted" type="primary" @click="onEval" :loading="loading">Submit</el-button>
       </el-col>
     </el-row>
   </div>
@@ -132,12 +139,12 @@ export default {
       contractAddress: this.$route.params.address,
       sk: store.getters.sk,
       password: '',
-      signingKey:
-        '17252880535835771401589099178720159186817276817443408064371641569237760237916'
+      signingKey: '',
+      loading: false
+
     }
   },
-  watch: {
-  },
+  watch: {},
   async created() {
     try {
       this.evaluation = await new EVALUATION(this.contractAddress)
@@ -228,6 +235,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
-17252880535835771401589099178720159186817276817443408064371641569237760237916
