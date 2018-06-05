@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;">
+  <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;" v-loading="loading">
     <el-row>
       <el-col :span="24">
         <h1 style="padding: 18px 20px; border-bottom: 1px solid #ebeef5; text-align:center">{{evalForm.name}}</h1>
@@ -36,11 +36,8 @@
 </template>
 
 <script>
-import { generateSignAndPublish } from '@/operations/eval'
 import EVALUATION from '@/operations/info'
-import { getEvaluation, postComment } from '@/api/evaluating'
-import BigInteger from 'bigi'
-import web3Utils from 'web3-utils'
+import { getEvaluation } from '@/api/evaluating'
 import PieChart from './components/PieChart'
 
 export default {
@@ -127,8 +124,7 @@ export default {
       },
       evaluation: null,
       contractAddress: this.$route.params.address,
-      signingKey:
-        '17252880535835771401589099178720159186817276817443408064371641569237760237916'
+      loading: true
     }
   },
   watch: {},
@@ -165,25 +161,6 @@ export default {
         ]++
       }
     }
-
-    // for (let i = 0; i < 10; i++) {
-    //   switch (i % 5) {
-    //     case 0:
-    //       this.evalForm.result[i] = [1, 4, 6, 8, 20];
-    //       break;
-    //     case 1:
-    //       this.evalForm.result[i] = [20, 8, 6, 4, 1];
-    //       break;
-    //     case 2:
-    //       this.evalForm.result[i] = [8, 20, 1, 4, 6];
-    //       break;
-    //     case 3:
-    //       this.evalForm.result[i] = [6, 8, 1, 4, 20];
-    //       break;
-    //     case 4:
-    //       this.evalForm.result[i] = [6, 8, 20, 1, 4];
-    //   }
-    // }
     const message = await getEvaluation(this.contractAddress)
     const evaluationInfo = message.data
     console.log(evaluationInfo)
@@ -199,6 +176,7 @@ export default {
     }
     this.evalForm.name = evaluationInfo.name
     this.evalForm.instructor = evaluationInfo.instructor
+    this.loading = false
   },
   computed: {
     isCompleted: function() {
@@ -215,45 +193,7 @@ export default {
     }
   },
   methods: {
-    onEval() {
-      let evalChoice = ''
-      const evalComment = {}
-      for (const item in this.evalForm.items) {
-        if (this.evalForm.items[item].type === 'score') {
-          if (this.evalForm.items[item].content === null) {
-            evalChoice += '6'
-          } else {
-            evalChoice += this.evalForm.items[item].content
-          }
-        } else if (this.evalForm.items[item].type === 'comment') {
-          evalComment.detail = this.evalForm.items[item].content
-        }
-      }
-      this.evalForm.M.evalChoice = evalChoice
-      this.evalForm.M.evalComment = BigInteger.fromHex(
-        web3Utils.keccak256(evalComment.detail).substring(2)
-      ).toString()
-      evalComment.hash = this.evalForm.M.evalComment
-      try {
-        generateSignAndPublish(
-          this.evaluation,
-          this.evalForm.M,
-          this.signingKey
-        )
-        postComment(this.contractAddress, evalComment)
-      } catch (e) {
-        this.$alert(
-          'You may submit a wrong signature or have evaluated.',
-          'Fail to Submit Evaluation',
-          {
-            confirmButtonText: 'Ok',
-            callback: action => {
-              // this.$router.push({ path: "/" });
-            }
-          }
-        )
-      }
-    }
+
   }
 }
 </script>

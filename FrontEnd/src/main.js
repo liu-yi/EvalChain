@@ -15,6 +15,9 @@ import store from './store'
 import '@/icons' // icon
 import '@/permission' // permission control
 // import './mock' // simulation data
+import Croppa from 'vue-croppa'
+import 'vue-croppa/dist/vue-croppa.css'
+Vue.use(Croppa)
 
 Vue.use(ElementUI, { locale })
 
