@@ -48,10 +48,10 @@
       </el-col>
     </el-row>
     <el-dialog title="提示" :visible.sync="dialogVisible" width="20%">
-      <span>Are you want to submit the evaluation?</span>
+      <span>Do you want to submit the evaluation?</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onEval">确 定</el-button>
+        <el-button @click="dialogVisible = false">No</el-button>
+        <el-button type="primary" @click="onEval">Yes</el-button>
       </span>
     </el-dialog>
   </div>

@@ -1,41 +1,55 @@
 <template>
-  <div class="app-container">
-    <el-form ref="setupForm" :model="setupForm" :rules="setupRules" label-width="110px" style="width:700px;">
+  <div class="app-container" style="padding-top: 3%">
+    <el-row>
+      <el-col :lg="15" :md="12">
+        <el-form ref="setupForm" :model="setupForm" :rules="setupRules" label-width="110px" style="width: 95%">
 
-      <el-form-item label="Course Name" prop="name">
-        <el-input v-model="setupForm.name"></el-input>
-      </el-form-item>
+          <el-form-item label="Course Name" prop="name">
+            <el-input v-model="setupForm.name"></el-input>
+          </el-form-item>
 
-      <el-form-item label="Instructor" prop="instructor">
-        <el-input v-model="setupForm.instructor"></el-input>
-      </el-form-item>
+          <el-form-item label="Instructor" prop="instructor">
+            <el-input v-model="setupForm.instructor"></el-input>
+          </el-form-item>
 
-      <el-form-item label="Time" prop="time">
-        <div>
-          <el-date-picker v-model="setupForm.time" type="datetimerange" align="right" start-placeholder="Start Time" end-placeholder="End Time" :default-time="['12:00:00', '12:00:00']" style="width: 100%">
-          </el-date-picker>
-        </div>
-      </el-form-item>
+          <el-form-item label="Time" prop="time">
+            <div>
+              <el-date-picker v-model="setupForm.time" type="datetimerange" align="right" start-placeholder="Start Time" end-placeholder="End Time" :default-time="['12:00:00', '12:00:00']" style="width: 100%">
+              </el-date-picker>
+            </div>
+          </el-form-item>
 
-      <el-form-item v-show="showTransfer" label="" prop="participants">
-        <div>
-          <el-transfer style="text-align: left; display: inline-block; width: 100%" v-model="participants" filterable :titles="['Candidates', 'Participants']" :format="{
-        noChecked: '${total}',
-        hasChecked: '${checked}/${total}'
-      }" :data="transferData" :render-content="renderFunc">
-          </el-transfer>
-        </div>
-      </el-form-item>
+          <el-form-item v-show="showTransfer" label="" prop="participants">
+            <div>
+              <el-transfer v-model="participants" filterable :titles="['Candidates', 'Participants']" :format="{
+                  noChecked: '${total}',
+                  hasChecked: '${checked}/${total}'
+                  }" :data="transferData" :render-content="renderFunc">
+              </el-transfer>
+            </div>
+          </el-form-item>
 
-      <div style="padding-top:20px">
-      </div>
-      <el-form-item>
-        <div>
-          <el-button :disabled="!isCompleted" style="width:85%" type="primary" :loading="loading" @click="onPublish">Publish</el-button>
-        </div>
-      </el-form-item>
+          <div style="padding-top:20px">
+          </div>
+          <el-form-item>
+            <div>
+              <el-button :disabled="!isCompleted" style="width:100%" type="primary" :loading="loading" @click="onPublish">Publish</el-button>
+            </div>
+          </el-form-item>
 
-    </el-form>
+        </el-form>
+      </el-col>
+      <el-col :lg="8" style="">
+        <el-card >
+          <div style=" padding-top: 5%; padding-bottom: 5%; text-align:center">
+            <croppa style="" v-model="myCroppa" :width="400" :height="400" placeholder="Choose an image" :placeholder-font-size="0" :disabled="false" :prevent-white-space="true" :show-remove-button="true"></croppa>
+          </div>
+
+        </el-card>
+
+      </el-col>
+    </el-row>
+
   </div>
 </template>
 
@@ -83,6 +97,9 @@ export default {
           }
         }
       }
+      if(this.participants.length === 0){
+        flag = false
+      }
       return flag;
     }
   },
@@ -99,10 +116,14 @@ export default {
   },
   methods: {
     uploadCroppedImage() {
-       this.myCroppa.generateBlob((blob) => {
-         // write code to upload the cropped image file (a file is a blob)
-       }, 'image/jpeg', 0.8) // 80% compressed jpeg file
-     },
+      this.myCroppa.generateBlob(
+        blob => {
+          // write code to upload the cropped image file (a file is a blob)
+        },
+        "image/jpeg",
+        0.8
+      ); // 80% compressed jpeg file
+    },
     async onPublish() {
       this.loading = true;
       const startTime = dateToUnixTime(this.setupForm.time[0]);
@@ -131,5 +152,8 @@ export default {
 </script>
 
 <style scoped>
+.el-transfer-panel {
+  width: 40%;
+}
 </style>
 

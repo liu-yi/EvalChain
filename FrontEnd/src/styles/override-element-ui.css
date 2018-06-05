@@ -1,0 +1,7 @@
+.el-transfer-panel {
+  width: calc(47% - 18px);
+}
+.el-transfer__buttons {
+  /* width: 5%; */
+  padding: 0 3%
+}

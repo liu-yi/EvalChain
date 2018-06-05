@@ -17,6 +17,7 @@ import '@/permission' // permission control
 // import './mock' // simulation data
 import Croppa from 'vue-croppa'
 import 'vue-croppa/dist/vue-croppa.css'
+import '@/styles/override-element-ui.css'
 Vue.use(Croppa)
 
 Vue.use(ElementUI, { locale })
