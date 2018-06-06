@@ -113,7 +113,8 @@ let GetForUser = async (ctx, isEnd) => {
           instructor: evaluation.instructor,
           avatar: evaluation.avatar,
           startTime: evaluation.startTime,
-          endTime: evaluation.endTime
+          endTime: evaluation.endTime,
+          pic: evaluation.pic
         }
       )
     } else if (!isEnd && !evaluation.isEnd) {
@@ -124,7 +125,8 @@ let GetForUser = async (ctx, isEnd) => {
           instructor: evaluation.instructor,
           avatar: evaluation.avatar,
           startTime: evaluation.startTime,
-          endTime: evaluation.endTime
+          endTime: evaluation.endTime,
+          pic: evaluation.pic
         }
       )
     }

@@ -18,7 +18,8 @@ evaluationHelper.addEvaluation = async (evaluation) => {
     endTime: evaluation.endTime,
     isEnd: Date.now() > evaluation.endTime,
     pkSet: evaluation.pkSet,
-    idSet: evaluation.idSet
+    idSet: evaluation.idSet,
+    pic: evaluation.pic
   })
   evaluation = await evaluation.save()
   return evaluation

@@ -40,12 +40,12 @@
         </el-form>
       </el-col>
       <el-col :lg="8" style="">
-        <el-card >
-          <div style=" padding-top: 5%; padding-bottom: 5%; text-align:center">
-            <croppa style="" v-model="myCroppa" :width="400" :height="400" placeholder="Choose an image" :placeholder-font-size="0" :disabled="false" :prevent-white-space="true" :show-remove-button="true"></croppa>
+        <!-- <el-card > -->
+          <div style=" padding-top: 8%; padding-bottom: 8%; text-align:center; border: 1px solid #ebeef5; ">
+            <croppa style="" v-model="myCroppa" :width="400" :height="400" placeholder="Choose an image" :placeholder-font-size="0" :disabled="false" :prevent-white-space="true" :show-remove-button="true" :initial-image="wangqi"></croppa>
           </div>
 
-        </el-card>
+        <!-- </el-card> -->
 
       </el-col>
     </el-row>
@@ -57,6 +57,7 @@
 import { dateToUnixTime } from "@/utils/time";
 import { publish } from "@/operations/deploy";
 import { getAll, setup } from "@/api/setup";
+import wangqi from '@/assets/qwang.jpg'
 
 export default {
   data() {
@@ -73,7 +74,8 @@ export default {
       setupForm: {
         name: "Fall 2018 CS101 Discrete Mathematics",
         instructor: "王琦",
-        time: ""
+        time: "",
+        pic: ""
       },
       participants: [], // 被选中的参与评教的人
       setupRules: {
@@ -84,7 +86,8 @@ export default {
       transferData: [],
       pkSet: [],
       idSet: [],
-      myCroppa: {}
+      myCroppa: {},
+      wangqi
     };
   },
   computed: {
@@ -92,7 +95,7 @@ export default {
       let flag = true;
       for (const item in this.setupForm) {
         if (this.setupForm[item] !== undefined) {
-          if (this.setupForm[item].length === 0) {
+          if (item != 'pic' && this.setupForm[item].length === 0) {
             flag = false;
           }
         }
@@ -113,6 +116,13 @@ export default {
       this.pkSet.push(element.pk);
       this.idSet.push(element.id);
     });
+    this.setupForm.pic = this.myCroppa.generateDataUrl()
+    // console.log(this.setupForm.pic)
+
+  },
+
+  mounted(){
+
   },
   methods: {
     uploadCroppedImage() {
@@ -137,6 +147,7 @@ export default {
       this.setupForm.startTime = this.setupForm.time[0];
       this.setupForm.endTime = this.setupForm.time[1];
       this.setupForm.time = undefined;
+      this.setupForm.pic = this.myCroppa.generateDataUrl()
       setup(this.setupForm);
       this.loading = false;
       this.$alert(

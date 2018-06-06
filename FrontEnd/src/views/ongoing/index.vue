@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <el-row style="padding-right:20px; padding-left:20px; width:100%" :gutter="20">
       <el-col :span="6" v-for="(course, item) in coursesList" :offset="0" :key="item" class="card">
         <el-card shadow="hover">
-          <img class="image" :src="hamburger">
+          <img class="image" :src="course.pic">
           <div style="padding: 14px;">
             <el-row>
               <el-col :span="24">
@@ -49,7 +49,8 @@ export default {
       currentPage: 1,
       courses: [],
       coursesList: [],
-      pageSize: 4
+      pageSize: 4,
+      loading: true
     }
   },
   methods: {
@@ -76,6 +77,7 @@ export default {
     for (let i = 0; i < size; i++) {
       this.coursesList.push(this.courses[i])
     }
+    this.loading = false
   }
 }
 </script>
