@@ -13,7 +13,7 @@
 import { mapGetters } from 'vuex'
 import SidebarItem from './SidebarItem'
 import ScrollBar from '@/components/ScrollBar'
-import logo from '@/assets/logo.png'
+import logo from '@/assets/logo1.png'
 
 export default {
   data() {

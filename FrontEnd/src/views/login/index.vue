@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import logo from '@/assets/logo.png'
+import logo from '@/assets/logo1.png'
 import { validateId } from '@/utils/validate'
 import { signup } from '@/api/login'
 import generateKeyPair from '@/operations/generateKeyPair'
