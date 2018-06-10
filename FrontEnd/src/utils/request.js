@@ -60,6 +60,9 @@ service.interceptors.response.use(
       type: 'error',
       duration: 5 * 1000
     })
+    store.dispatch('FedLogOut').then(() => {
+      location.reload()// 为了重新实例化vue-router对象 避免bug
+    })
     return Promise.reject(error)
   }
 )

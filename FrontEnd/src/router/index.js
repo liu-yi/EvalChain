@@ -35,7 +35,7 @@ export const constantRouterMap = [
     children: [{
       path: 'index',
       name: 'Home',
-      meta: { title: 'Home', icon: 'user' },
+      meta: { title: 'Home', icon: 'home' },
       component: () => import('@/views/home/index')
     }]
   },
@@ -67,6 +67,7 @@ export const constantRouterMap = [
   {
     path: '/info',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: '',
@@ -94,19 +95,19 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/courses/ongoing',
     name: 'Courses',
-    meta: { title: 'Courses', icon: 'example' },
+    meta: { title: 'Courses', icon: 'course' },
     children: [
       {
         path: 'ongoing',
         name: 'Ongoing',
         component: () => import('@/views/ongoing/index'),
-        meta: { title: 'Ongoing', icon: 'table' }
+        meta: { title: 'Ongoing', icon: 'ongoing' }
       },
       {
         path: 'finished',
         name: 'Finished',
         component: () => import('@/views/finished/index'),
-        meta: { title: 'Finished', icon: 'tree' }
+        meta: { title: 'Finished', icon: 'finish' }
       }
     ]
   },
@@ -180,7 +181,7 @@ export const asyncRouterMap = [
     children: [{
       path: '',
       name: 'Setup',
-      meta: { title: 'Setup', icon: 'user' },
+      meta: { title: 'Setup', icon: 'publish' },
       component: () => import('@/views/setup/index')
     }]
   },

@@ -14,7 +14,7 @@
               </el-col>
             </el-row>
             <div class="bottom clearfix">
-              <span style="font-size: 13px;color: #666;">Participation: 1/60</span>
+              <!-- <span style="font-size: 13px;color: #666;">Participation: 1/60</span> -->
               <time class="time">End Time: {{ new Date(Date.parse(course.endTime)).toLocaleString() }}</time>
               <el-button type="primary" @click="onStart(course.address)" style="margin-top:6px;width:100%">Start</el-button>
               <br>
@@ -71,6 +71,7 @@ export default {
   },
   async created() {
     const message = await getCourses(false)
+    console.log(message)
     this.courses = message.data
     this.coursesList = []
     const size = this.courses.length > this.pageSize ? this.pageSize : this.courses.length

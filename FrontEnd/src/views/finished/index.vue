@@ -15,7 +15,7 @@
             </el-row>
 
             <div class="bottom clearfix">
-              <span style="font-size: 13px;color: #666;">Participation: 1/60</span>
+              <!-- <span style="font-size: 13px;color: #666;">Participation: 1/60</span> -->
               <time class="time">End Time: {{ new Date(Date.parse(course.endTime)).toLocaleString() }}</time>
               <el-button @click="onResult(course.address)" style="margin-top:6px;width:100%">Result</el-button>
             </div>

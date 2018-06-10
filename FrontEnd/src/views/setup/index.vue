@@ -39,9 +39,9 @@
 
         </el-form>
       </el-col>
-      <el-col :lg="8" style="">
+      <el-col :lg="8" :md="12" style="">
         <!-- <el-card > -->
-          <div style=" padding-top: 8%; padding-bottom: 8%; text-align:center; border: 1px solid #ebeef5; ">
+          <div style="min-width: 450px; padding-top: 8%; padding-bottom: 8%; text-align:center; border: 1px solid #ebeef5; ">
             <croppa style="" v-model="myCroppa" :width="400" :height="400" placeholder="Choose an image" :placeholder-font-size="0" :disabled="false" :prevent-white-space="true" :show-remove-button="true" :initial-image="wangqi"></croppa>
           </div>
 

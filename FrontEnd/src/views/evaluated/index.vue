@@ -1,7 +1,7 @@
 <template>
-  <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;" v-loading="loading">
+  <div class="app-container" style="padding-top: 60px; padding-left: 80px; padding-right: 80px;">
     <el-row>
-      <el-col :span="24">
+      <el-col :span="24" v-loading="loading">
         <h1 style="padding: 18px 20px; border-bottom: 1px solid #ebeef5; text-align:center">{{evalForm.name}}</h1>
       </el-col>
       <el-col :span="24">

@@ -55,7 +55,7 @@
                             <el-input v-model="signupForm.pk" class="pkInput" style="width:100%"> </el-input>
                           </el-col>
                           <el-col :span="12">
-                            <el-button style="width:100%" type="success" class="pkButton" @click.native.prevent="handleGenerate" :disabled="signupForm.password === ''">Generate Public Key</el-button>
+                            <el-button style="width:100%" type="success" class="pkButton" @click.native.prevent="handleGenerate" :disabled="signupForm.password === ''">Get Public Key</el-button>
                           </el-col>
                         </el-row>
                       </el-form-item>
